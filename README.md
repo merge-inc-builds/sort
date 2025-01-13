@@ -7,7 +7,7 @@
 - **Requires PHP**: 7.4
 - **WC requires at least**: 7.3.0
 - **WC tested up to**: 9.5.1
-- **Stable tag**: 4.0.1
+- **Stable tag**: 4.0.2
 - **License**: GPLv3
 - **License URI**: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html)
 
@@ -32,7 +32,7 @@ functionality. Here are the key features:
 
 ## == Installation ==
 
-1. Upload the `wp-plugin-merge-inc-sort` folder to the `/wp-content/plugins/` directory.
+1. Upload the `sort` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Configure sorting options in the admin menu 'SORT'.
 

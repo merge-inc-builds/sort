@@ -5,10 +5,10 @@ declare(strict_types=1);
  * Plugin Name: Sort
  * Author URI: https://sort.joinmerge.gr
  * Description: A WooCommerce extension designed to enhance your store's product sorting and ranking capabilities. Sort products dynamically using sales data, trends, and other criteria to optimize customer experience and maximize conversions.
- * Version: 4.0.1
+ * Version: 4.0.2
  * Author: Merge Inc
- * GitHub Plugin URI: https://github.com/merge-inc-builds/sort
- * Plugin URI: https://sort.joinmerge.gr/sort
+ * GitHub Plugin URI: https://github.com/merge-inc-builds/wc-sort
+ * Plugin URI: https://sort.joinmerge.gr/wc-sort
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * Requires at least: 6.2.1
@@ -66,7 +66,7 @@ class Sort {
 	/**
 	 *
 	 */
-	public const VERSION = '4.0.1';
+	public const VERSION = '4.0.2';
 
 	/**
 	 * @var Sort|null
