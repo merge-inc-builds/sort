@@ -7,7 +7,7 @@
 - **Requires PHP**: 7.4
 - **WC requires at least**: 7.3.0
 - **WC tested up to**: 9.5.1
-- **Stable tag**: 4.0.6
+- **Stable tag**: 4.0.7
 - **License**: GPLv3
 - **License URI**: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html)
 
