@@ -11,114 +11,117 @@ use MergeInc\Sort\Dependencies\DI\Definition\Definition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class DefinitionArray implements DefinitionSource, MutableDefinitionSource {
+class DefinitionArray implements DefinitionSource, MutableDefinitionSource
+{
+    const WILDCARD = '*';
+    /**
+     * Matches anything except "\".
+     */
+    const WILDCARD_PATTERN = '([^\\\\]+)';
 
-	const WILDCARD = '*';
-	/**
-	 * Matches anything except "\".
-	 */
-	const WILDCARD_PATTERN = '([^\\\\]+)';
+    /**
+     * MergeInc\Sort\Dependencies\DI definitions in a PHP array.
+     * @var array
+     */
+    private $definitions = [];
 
-	/**
-	 * MergeInc\Sort\Dependencies\DI definitions in a PHP array.
-	 *
-	 * @var array
-	 */
-	private $definitions = array();
+    /**
+     * Cache of wildcard definitions.
+     * @var array|null
+     */
+    private $wildcardDefinitions;
 
-	/**
-	 * Cache of wildcard definitions.
-	 *
-	 * @var array|null
-	 */
-	private $wildcardDefinitions;
+    /**
+     * @var DefinitionNormalizer
+     */
+    private $normalizer;
 
-	/**
-	 * @var DefinitionNormalizer
-	 */
-	private $normalizer;
+    public function __construct(array $definitions = [], Autowiring $autowiring = null)
+    {
+        if (isset($definitions[0])) {
+            throw new \Exception('The PHP-MergeInc\Sort\Dependencies\DI definition is not indexed by an entry name in the definition array');
+        }
 
-	public function __construct( array $definitions = array(), Autowiring $autowiring = null ) {
-		if ( isset( $definitions[0] ) ) {
-			throw new \Exception( 'The PHP-MergeInc\Sort\Dependencies\DI definition is not indexed by an entry name in the definition array' );
-		}
+        $this->definitions = $definitions;
 
-		$this->definitions = $definitions;
+        $autowiring = $autowiring ?: new NoAutowiring;
+        $this->normalizer = new DefinitionNormalizer($autowiring);
+    }
 
-		$autowiring       = $autowiring ?: new NoAutowiring();
-		$this->normalizer = new DefinitionNormalizer( $autowiring );
-	}
+    /**
+     * @param array $definitions MergeInc\Sort\Dependencies\DI definitions in a PHP array indexed by the definition name.
+     */
+    public function addDefinitions(array $definitions)
+    {
+        if (isset($definitions[0])) {
+            throw new \Exception('The PHP-MergeInc\Sort\Dependencies\DI definition is not indexed by an entry name in the definition array');
+        }
 
-	/**
-	 * @param array $definitions MergeInc\Sort\Dependencies\DI definitions in a PHP array indexed by the definition name.
-	 */
-	public function addDefinitions( array $definitions ) {
-		if ( isset( $definitions[0] ) ) {
-			throw new \Exception( 'The PHP-MergeInc\Sort\Dependencies\DI definition is not indexed by an entry name in the definition array' );
-		}
+        // The newly added data prevails
+        // "for keys that exist in both arrays, the elements from the left-hand array will be used"
+        $this->definitions = $definitions + $this->definitions;
 
-		// The newly added data prevails
-		// "for keys that exist in both arrays, the elements from the left-hand array will be used"
-		$this->definitions = $definitions + $this->definitions;
+        // Clear cache
+        $this->wildcardDefinitions = null;
+    }
 
-		// Clear cache
-		$this->wildcardDefinitions = null;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function addDefinition(Definition $definition)
+    {
+        $this->definitions[$definition->getName()] = $definition;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function addDefinition( Definition $definition ) {
-		$this->definitions[ $definition->getName() ] = $definition;
+        // Clear cache
+        $this->wildcardDefinitions = null;
+    }
 
-		// Clear cache
-		$this->wildcardDefinitions = null;
-	}
+    public function getDefinition(string $name)
+    {
+        // Look for the definition by name
+        if (array_key_exists($name, $this->definitions)) {
+            $definition = $this->definitions[$name];
+            $definition = $this->normalizer->normalizeRootDefinition($definition, $name);
 
-	public function getDefinition( string $name ) {
-		// Look for the definition by name
-		if ( array_key_exists( $name, $this->definitions ) ) {
-			$definition = $this->definitions[ $name ];
-			$definition = $this->normalizer->normalizeRootDefinition( $definition, $name );
+            return $definition;
+        }
 
-			return $definition;
-		}
+        // Build the cache of wildcard definitions
+        if ($this->wildcardDefinitions === null) {
+            $this->wildcardDefinitions = [];
+            foreach ($this->definitions as $key => $definition) {
+                if (strpos($key, self::WILDCARD) !== false) {
+                    $this->wildcardDefinitions[$key] = $definition;
+                }
+            }
+        }
 
-		// Build the cache of wildcard definitions
-		if ( $this->wildcardDefinitions === null ) {
-			$this->wildcardDefinitions = array();
-			foreach ( $this->definitions as $key => $definition ) {
-				if ( strpos( $key, self::WILDCARD ) !== false ) {
-					$this->wildcardDefinitions[ $key ] = $definition;
-				}
-			}
-		}
+        // Look in wildcards definitions
+        foreach ($this->wildcardDefinitions as $key => $definition) {
+            // Turn the pattern into a regex
+            $key = preg_quote($key);
+            $key = '#' . str_replace('\\' . self::WILDCARD, self::WILDCARD_PATTERN, $key) . '#';
+            if (preg_match($key, $name, $matches) === 1) {
+                array_shift($matches);
+                $definition = $this->normalizer->normalizeRootDefinition($definition, $name, $matches);
 
-		// Look in wildcards definitions
-		foreach ( $this->wildcardDefinitions as $key => $definition ) {
-			// Turn the pattern into a regex
-			$key = preg_quote( $key );
-			$key = '#' . str_replace( '\\' . self::WILDCARD, self::WILDCARD_PATTERN, $key ) . '#';
-			if ( preg_match( $key, $name, $matches ) === 1 ) {
-				array_shift( $matches );
-				$definition = $this->normalizer->normalizeRootDefinition( $definition, $name, $matches );
+                return $definition;
+            }
+        }
 
-				return $definition;
-			}
-		}
+        return null;
+    }
 
-		return null;
-	}
+    public function getDefinitions() : array
+    {
+        // Return all definitions except wildcard definitions
+        $definitions = [];
+        foreach ($this->definitions as $key => $definition) {
+            if (strpos($key, self::WILDCARD) === false) {
+                $definitions[$key] = $definition;
+            }
+        }
 
-	public function getDefinitions(): array {
-		// Return all definitions except wildcard definitions
-		$definitions = array();
-		foreach ( $this->definitions as $key => $definition ) {
-			if ( strpos( $key, self::WILDCARD ) === false ) {
-				$definitions[ $key ] = $definition;
-			}
-		}
-
-		return $definitions;
-	}
+        return $definitions;
+    }
 }

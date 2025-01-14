@@ -13,25 +13,25 @@ use MergeInc\Sort\Dependencies\DI\Factory\RequestedEntry;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface Definition extends RequestedEntry {
+interface Definition extends RequestedEntry
+{
+    /**
+     * Returns the name of the entry in the container.
+     */
+    public function getName() : string;
 
-	/**
-	 * Returns the name of the entry in the container.
-	 */
-	public function getName(): string;
+    /**
+     * Set the name of the entry in the container.
+     */
+    public function setName(string $name);
 
-	/**
-	 * Set the name of the entry in the container.
-	 */
-	public function setName( string $name );
+    /**
+     * Apply a callable that replaces the definitions nested in this definition.
+     */
+    public function replaceNestedDefinitions(callable $replacer);
 
-	/**
-	 * Apply a callable that replaces the definitions nested in this definition.
-	 */
-	public function replaceNestedDefinitions( callable $replacer );
-
-	/**
-	 * Definitions can be cast to string for debugging information.
-	 */
-	public function __toString();
+    /**
+     * Definitions can be cast to string for debugging information.
+     */
+    public function __toString();
 }

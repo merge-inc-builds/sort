@@ -11,55 +11,62 @@ use MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ValueDefinition implements Definition, SelfResolvingDefinition {
+class ValueDefinition implements Definition, SelfResolvingDefinition
+{
+    /**
+     * Entry name.
+     * @var string
+     */
+    private $name = '';
 
-	/**
-	 * Entry name.
-	 *
-	 * @var string
-	 */
-	private $name = '';
+    /**
+     * @var mixed
+     */
+    private $value;
 
-	/**
-	 * @var mixed
-	 */
-	private $value;
+    /**
+     * @param mixed $value
+     */
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
 
-	/**
-	 * @param mixed $value
-	 */
-	public function __construct( $value ) {
-		$this->value = $value;
-	}
+    public function getName() : string
+    {
+        return $this->name;
+    }
 
-	public function getName(): string {
-		return $this->name;
-	}
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
 
-	public function setName( string $name ) {
-		$this->name = $name;
-	}
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getValue() {
-		return $this->value;
-	}
+    public function resolve(ContainerInterface $container)
+    {
+        return $this->getValue();
+    }
 
-	public function resolve( ContainerInterface $container ) {
-		return $this->getValue();
-	}
+    public function isResolvable(ContainerInterface $container) : bool
+    {
+        return true;
+    }
 
-	public function isResolvable( ContainerInterface $container ): bool {
-		return true;
-	}
+    public function replaceNestedDefinitions(callable $replacer)
+    {
+        // no nested definitions
+    }
 
-	public function replaceNestedDefinitions( callable $replacer ) {
-		// no nested definitions
-	}
-
-	public function __toString() {
-		return sprintf( 'Value (%s)', var_export( $this->value, true ) );
-	}
+    public function __toString()
+    {
+        return sprintf('Value (%s)', var_export($this->value, true));
+    }
 }

@@ -9,7 +9,7 @@ namespace MergeInc\Sort\Dependencies\DI\Definition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface ExtendsPreviousDefinition extends Definition {
-
-	public function setExtendedDefinition( Definition $definition );
+interface ExtendsPreviousDefinition extends Definition
+{
+    public function setExtendedDefinition(Definition $definition);
 }

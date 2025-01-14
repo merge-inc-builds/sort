@@ -10,53 +10,60 @@ namespace MergeInc\Sort\Dependencies\DI\Definition;
  * @since  5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class InstanceDefinition implements Definition {
+class InstanceDefinition implements Definition
+{
+    /**
+     * Instance on which to inject dependencies.
+     *
+     * @var object
+     */
+    private $instance;
 
-	/**
-	 * Instance on which to inject dependencies.
-	 *
-	 * @var object
-	 */
-	private $instance;
+    /**
+     * @var ObjectDefinition
+     */
+    private $objectDefinition;
 
-	/**
-	 * @var ObjectDefinition
-	 */
-	private $objectDefinition;
+    /**
+     * @param object $instance
+     */
+    public function __construct($instance, ObjectDefinition $objectDefinition)
+    {
+        $this->instance = $instance;
+        $this->objectDefinition = $objectDefinition;
+    }
 
-	/**
-	 * @param object $instance
-	 */
-	public function __construct( $instance, ObjectDefinition $objectDefinition ) {
-		$this->instance         = $instance;
-		$this->objectDefinition = $objectDefinition;
-	}
+    public function getName() : string
+    {
+        // Name are superfluous for instance definitions
+        return '';
+    }
 
-	public function getName(): string {
-		// Name are superfluous for instance definitions
-		return '';
-	}
+    public function setName(string $name)
+    {
+        // Name are superfluous for instance definitions
+    }
 
-	public function setName( string $name ) {
-		// Name are superfluous for instance definitions
-	}
+    /**
+     * @return object
+     */
+    public function getInstance()
+    {
+        return $this->instance;
+    }
 
-	/**
-	 * @return object
-	 */
-	public function getInstance() {
-		return $this->instance;
-	}
+    public function getObjectDefinition() : ObjectDefinition
+    {
+        return $this->objectDefinition;
+    }
 
-	public function getObjectDefinition(): ObjectDefinition {
-		return $this->objectDefinition;
-	}
+    public function replaceNestedDefinitions(callable $replacer)
+    {
+        $this->objectDefinition->replaceNestedDefinitions($replacer);
+    }
 
-	public function replaceNestedDefinitions( callable $replacer ) {
-		$this->objectDefinition->replaceNestedDefinitions( $replacer );
-	}
-
-	public function __toString() {
-		return 'Instance';
-	}
+    public function __toString()
+    {
+        return 'Instance';
+    }
 }

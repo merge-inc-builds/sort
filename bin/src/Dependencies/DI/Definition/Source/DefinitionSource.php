@@ -12,18 +12,18 @@ use MergeInc\Sort\Dependencies\DI\Definition\Exception\InvalidDefinition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface DefinitionSource {
+interface DefinitionSource
+{
+    /**
+     * Returns the MergeInc\Sort\Dependencies\DI definition for the entry name.
+     *
+     * @throws InvalidDefinition An invalid definition was found.
+     * @return Definition|null
+     */
+    public function getDefinition(string $name);
 
-	/**
-	 * Returns the MergeInc\Sort\Dependencies\DI definition for the entry name.
-	 *
-	 * @throws InvalidDefinition An invalid definition was found.
-	 * @return Definition|null
-	 */
-	public function getDefinition( string $name );
-
-	/**
-	 * @return Definition[] Definitions indexed by their name.
-	 */
-	public function getDefinitions(): array;
+    /**
+     * @return Definition[] Definitions indexed by their name.
+     */
+    public function getDefinitions() : array;
 }

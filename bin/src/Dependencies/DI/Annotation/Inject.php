@@ -18,77 +18,76 @@ use MergeInc\Sort\Dependencies\DI\Definition\Exception\InvalidAnnotation;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-final class Inject {
+final class Inject
+{
+    /**
+     * Entry name.
+     * @var string
+     */
+    private $name;
 
-	/**
-	 * Entry name.
-	 *
-	 * @var string
-	 */
-	private $name;
+    /**
+     * Parameters, indexed by the parameter number (index) or name.
+     *
+     * Used if the annotation is set on a method
+     * @var array
+     */
+    private $parameters = [];
 
-	/**
-	 * Parameters, indexed by the parameter number (index) or name.
-	 *
-	 * Used if the annotation is set on a method
-	 *
-	 * @var array
-	 */
-	private $parameters = array();
+    /**
+     * @throws InvalidAnnotation
+     */
+    public function __construct(array $values)
+    {
+        // Process the parameters as a list AND as a parameter array (we don't know on what the annotation is)
 
-	/**
-	 * @throws InvalidAnnotation
-	 */
-	public function __construct( array $values ) {
-		// Process the parameters as a list AND as a parameter array (we don't know on what the annotation is)
+        // @Inject(name="foo")
+        if (isset($values['name']) && is_string($values['name'])) {
+            $this->name = $values['name'];
 
-		// @Inject(name="foo")
-		if ( isset( $values['name'] ) && is_string( $values['name'] ) ) {
-			$this->name = $values['name'];
+            return;
+        }
 
-			return;
-		}
+        // @Inject
+        if (! isset($values['value'])) {
+            return;
+        }
 
-		// @Inject
-		if ( ! isset( $values['value'] ) ) {
-			return;
-		}
+        $values = $values['value'];
 
-		$values = $values['value'];
+        // @Inject("foo")
+        if (is_string($values)) {
+            $this->name = $values;
+        }
 
-		// @Inject("foo")
-		if ( is_string( $values ) ) {
-			$this->name = $values;
-		}
+        // @Inject({...}) on a method
+        if (is_array($values)) {
+            foreach ($values as $key => $value) {
+                if (! is_string($value)) {
+                    throw new InvalidAnnotation(sprintf(
+                        '@Inject({"param" = "value"}) expects "value" to be a string, %s given.',
+                        json_encode($value)
+                    ));
+                }
 
-		// @Inject({...}) on a method
-		if ( is_array( $values ) ) {
-			foreach ( $values as $key => $value ) {
-				if ( ! is_string( $value ) ) {
-					throw new InvalidAnnotation(
-						sprintf(
-							'@Inject({"param" = "value"}) expects "value" to be a string, %s given.',
-							json_encode( $value )
-						)
-					);
-				}
+                $this->parameters[$key] = $value;
+            }
+        }
+    }
 
-				$this->parameters[ $key ] = $value;
-			}
-		}
-	}
+    /**
+     * @return string|null Name of the entry to inject
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/**
-	 * @return string|null Name of the entry to inject
-	 */
-	public function getName() {
-		return $this->name;
-	}
-
-	/**
-	 * @return array Parameters, indexed by the parameter number (index) or name
-	 */
-	public function getParameters(): array {
-		return $this->parameters;
-	}
+    /**
+     * @return array Parameters, indexed by the parameter number (index) or name
+     */
+    public function getParameters() : array
+    {
+        return $this->parameters;
+    }
 }

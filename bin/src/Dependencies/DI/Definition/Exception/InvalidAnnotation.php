@@ -9,6 +9,6 @@ namespace MergeInc\Sort\Dependencies\DI\Definition\Exception;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class InvalidAnnotation extends InvalidDefinition {
-
+class InvalidAnnotation extends InvalidDefinition
+{
 }
