@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Plugin Name: Sales Order Ranking Tool
  * Author URI: https://sort.joinmerge.gr
  * Description: A WooCommerce extension designed to enhance your store's product sorting and ranking capabilities. Sort products dynamically using sales data, trends, and other criteria to optimize customer experience and maximize conversions.
- * Version: 4.0.14
+ * Version: 4.0.15
  * Author: Merge Inc
  * GitHub Plugin URI: https://github.com/merge-inc-builds/sort
  * Plugin URI: https://sort.joinmerge.gr/sort
@@ -28,6 +28,7 @@ require_once __DIR__ . '/bin/vendor/autoload.php';
 use Error;
 use Exception;
 use MergeInc\Sort\Globals\Constants;
+use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Dependencies\DI\ContainerBuilder;
 use MergeInc\Sort\Dependencies\DI\NotFoundException;
 use MergeInc\Sort\Dependencies\League\Plates\Engine;
@@ -43,6 +44,7 @@ use MergeInc\Sort\WordPress\Controller\MenuPageRegistrationController;
 use MergeInc\Sort\WordPress\Controller\SettingsRegistrationController;
 use MergeInc\Sort\WordPress\Controller\InjectAdminJavascriptController;
 use MergeInc\Sort\Dependencies\Psr\Container\NotFoundExceptionInterface;
+use MergeInc\Sort\WordPress\Controller\UpdateCronJobIntervalsController;
 use MergeInc\Sort\Dependencies\Psr\Container\ContainerExceptionInterface;
 use MergeInc\Sort\WordPress\Controller\DeclareHposCompatibilityController;
 use MergeInc\Sort\WordPress\Controller\SetTrendingOptionAsDefaultController;
@@ -66,7 +68,7 @@ class Sort {
 	/**
 	 *
 	 */
-	public const VERSION = '4.0.14';
+	public const VERSION = '4.0.15';
 
 	/**
 	 * @var Sort|null
@@ -105,8 +107,10 @@ class Sort {
 		 */
 		$controllerRegistrar = $this->getFromContainer( ControllerRegistrar::class );
 
+		$controllerRegistrar->register( 'cron_schedules', UpdateCronJobIntervalsController::class );
+
 		if ( ! wp_next_scheduled( Constants::ACTION_CREATE_PRODUCTS_META_KEYS ) ) {
-			wp_schedule_event( time(), 'hourly', Constants::ACTION_CREATE_PRODUCTS_META_KEYS );
+			wp_schedule_event( time(), Constants::CRON_INTERVAL_FIFTEEN_MINUTES, Constants::ACTION_CREATE_PRODUCTS_META_KEYS );
 		}
 
 		/**
@@ -368,6 +372,25 @@ class Sort {
 		 * TODO: Add Test
 		 */
 		$controllerRegistrar->register( 'rest_api_init', AjaxMetaKeysCreatorApiExposeController::class );
+
+		/**
+		 * @var DataHelper $dataHelper
+		 */
+		$dataHelper = $this->getFromContainer( DataHelper::class );
+		register_deactivation_hook(
+			"{$dataHelper->getAppRoot()}/merge-inc-sort.php",
+			function () {
+				$timestamp = wp_next_scheduled( Constants::ACTION_CREATE_PRODUCTS_META_KEYS );
+				if ( $timestamp ) {
+					wp_unschedule_event( $timestamp, Constants::ACTION_CREATE_PRODUCTS_META_KEYS );
+				}
+
+				$timestamp = wp_next_scheduled( Constants::ACTION_REGISTER_SUBSCRIBER );
+				if ( $timestamp ) {
+					wp_unschedule_event( $timestamp, Constants::ACTION_REGISTER_SUBSCRIBER );
+				}
+			}
+		);
 	}
 
 	/**

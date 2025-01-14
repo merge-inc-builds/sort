@@ -215,4 +215,9 @@ final class Constants {
 	 *
 	 */
 	public const WP_JSON_API_CREATE_META_KEYS = 'meta-keys';
+
+	/**
+	 *
+	 */
+	public const CRON_INTERVAL_FIFTEEN_MINUTES = 'fifteen_minutes';
 }
