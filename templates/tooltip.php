@@ -3,4 +3,4 @@
  * @var string $text
  */
 ?>
-<span class='tooltip' data-tooltip='<?=$text?>'>?</span>
+<span class='tooltip' data-tooltip='<?php echo $text?>'>?</span>

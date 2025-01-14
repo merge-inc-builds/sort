@@ -15,11 +15,11 @@
  * @var bool $freemiumActivated
  */
 ?>
-<select id="<?=$id;?>" name="<?=$id?>" style="width: 100%">
+<select id="<?php echo $id;?>" name="<?php echo $id?>" style="width: 100%">
 	<?php
 	foreach($intervals as $interval) :?>
-        <option <?=$freemiumActivated ? "" : ($interval > 7 ? "disabled" : "")?> value="<?=$interval;?>" <?=$value ===
-		$interval ? "selected" : "";?>><?=$interval?> <?=$daysLabel?></option>
+        <option <?php echo $freemiumActivated ? "" : ($interval > 7 ? "disabled" : "")?> value="<?php echo $interval;?>" <?php echo $value ===
+		$interval ? "selected" : "";?>><?php echo $interval?> <?php echo $daysLabel?></option>
 	<?php
 	endforeach ?>
 </select>

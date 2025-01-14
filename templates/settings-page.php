@@ -10,7 +10,7 @@
  */
 ?>
 <div class="wrap">
-    <h1 style="margin-bottom: 7px"><img src="<?=$logoUrl?>" class="logo"/> | <?=$title?></h1>
+    <h1 style="margin-bottom: 7px"><img src="<?php echo $logoUrl?>" class="logo"/> | <?php echo $title?></h1>
     <!-- TODO: Translatable -->
     <div class="notice notice-info ms-styled">
         <h2>Important Information About Data Collection and Indexes</h2>
@@ -39,6 +39,6 @@
             soon as possible.</p>
     </div>
     <form action="options.php" method="post">
-		<?=$pageContent?>
+		<?php echo $pageContent?>
     </form>
 </div>
