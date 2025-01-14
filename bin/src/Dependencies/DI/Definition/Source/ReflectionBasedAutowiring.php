@@ -14,72 +14,68 @@ use ReflectionNamedType;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ReflectionBasedAutowiring implements DefinitionSource, Autowiring
-{
-    public function autowire(string $name, ObjectDefinition $definition = null)
-    {
-        $className = $definition ? $definition->getClassName() : $name;
+class ReflectionBasedAutowiring implements DefinitionSource, Autowiring {
 
-        if (!class_exists($className) && !interface_exists($className)) {
-            return $definition;
-        }
+	public function autowire( string $name, ObjectDefinition $definition = null ) {
+		$className = $definition ? $definition->getClassName() : $name;
 
-        $definition = $definition ?: new ObjectDefinition($name);
+		if ( ! class_exists( $className ) && ! interface_exists( $className ) ) {
+			return $definition;
+		}
 
-        // Constructor
-        $class = new \ReflectionClass($className);
-        $constructor = $class->getConstructor();
-        if ($constructor && $constructor->isPublic()) {
-            $constructorInjection = MethodInjection::constructor($this->getParametersDefinition($constructor));
-            $definition->completeConstructorInjection($constructorInjection);
-        }
+		$definition = $definition ?: new ObjectDefinition( $name );
 
-        return $definition;
-    }
+		// Constructor
+		$class       = new \ReflectionClass( $className );
+		$constructor = $class->getConstructor();
+		if ( $constructor && $constructor->isPublic() ) {
+			$constructorInjection = MethodInjection::constructor( $this->getParametersDefinition( $constructor ) );
+			$definition->completeConstructorInjection( $constructorInjection );
+		}
 
-    public function getDefinition(string $name)
-    {
-        return $this->autowire($name);
-    }
+		return $definition;
+	}
 
-    /**
-     * Autowiring cannot guess all existing definitions.
-     */
-    public function getDefinitions() : array
-    {
-        return [];
-    }
+	public function getDefinition( string $name ) {
+		return $this->autowire( $name );
+	}
 
-    /**
-     * Read the type-hinting from the parameters of the function.
-     */
-    private function getParametersDefinition(\ReflectionFunctionAbstract $constructor) : array
-    {
-        $parameters = [];
+	/**
+	 * Autowiring cannot guess all existing definitions.
+	 */
+	public function getDefinitions(): array {
+		return array();
+	}
 
-        foreach ($constructor->getParameters() as $index => $parameter) {
-            // Skip optional parameters
-            if ($parameter->isOptional()) {
-                continue;
-            }
+	/**
+	 * Read the type-hinting from the parameters of the function.
+	 */
+	private function getParametersDefinition( \ReflectionFunctionAbstract $constructor ): array {
+		$parameters = array();
 
-            $parameterType = $parameter->getType();
-            if (!$parameterType) {
-                // No type
-                continue;
-            }
-            if (!$parameterType instanceof ReflectionNamedType) {
-                // Union types are not supported
-                continue;
-            }
-            if ($parameterType->isBuiltin()) {
-                // Primitive types are not supported
-                continue;
-            }
+		foreach ( $constructor->getParameters() as $index => $parameter ) {
+			// Skip optional parameters
+			if ( $parameter->isOptional() ) {
+				continue;
+			}
 
-            $parameters[$index] = new Reference($parameterType->getName());
-        }
+			$parameterType = $parameter->getType();
+			if ( ! $parameterType ) {
+				// No type
+				continue;
+			}
+			if ( ! $parameterType instanceof ReflectionNamedType ) {
+				// Union types are not supported
+				continue;
+			}
+			if ( $parameterType->isBuiltin() ) {
+				// Primitive types are not supported
+				continue;
+			}
 
-        return $parameters;
-    }
+			$parameters[ $index ] = new Reference( $parameterType->getName() );
+		}
+
+		return $parameters;
+	}
 }

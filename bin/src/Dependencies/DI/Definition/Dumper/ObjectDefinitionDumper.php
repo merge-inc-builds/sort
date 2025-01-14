@@ -15,121 +15,116 @@ use ReflectionException;
  * @since 4.1
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ObjectDefinitionDumper
-{
-    /**
-     * Returns the definition as string representation.
-     */
-    public function dump(ObjectDefinition $definition) : string
-    {
-        $className = $definition->getClassName();
-        $classExist = class_exists($className) || interface_exists($className);
+class ObjectDefinitionDumper {
 
-        // Class
-        if (! $classExist) {
-            $warning = '#UNKNOWN# ';
-        } else {
-            $class = new \ReflectionClass($className);
-            $warning = $class->isInstantiable() ? '' : '#NOT INSTANTIABLE# ';
-        }
-        $str = sprintf('    class = %s%s', $warning, $className);
+	/**
+	 * Returns the definition as string representation.
+	 */
+	public function dump( ObjectDefinition $definition ): string {
+		$className  = $definition->getClassName();
+		$classExist = class_exists( $className ) || interface_exists( $className );
 
-        // Lazy
-        $str .= \PHP_EOL . '    lazy = ' . var_export($definition->isLazy(), true);
+		// Class
+		if ( ! $classExist ) {
+			$warning = '#UNKNOWN# ';
+		} else {
+			$class   = new \ReflectionClass( $className );
+			$warning = $class->isInstantiable() ? '' : '#NOT INSTANTIABLE# ';
+		}
+		$str = sprintf( '    class = %s%s', $warning, $className );
 
-        if ($classExist) {
-            // Constructor
-            $str .= $this->dumpConstructor($className, $definition);
+		// Lazy
+		$str .= \PHP_EOL . '    lazy = ' . var_export( $definition->isLazy(), true );
 
-            // Properties
-            $str .= $this->dumpProperties($definition);
+		if ( $classExist ) {
+			// Constructor
+			$str .= $this->dumpConstructor( $className, $definition );
 
-            // Methods
-            $str .= $this->dumpMethods($className, $definition);
-        }
+			// Properties
+			$str .= $this->dumpProperties( $definition );
 
-        return sprintf('Object (' . \PHP_EOL . '%s' . \PHP_EOL . ')', $str);
-    }
+			// Methods
+			$str .= $this->dumpMethods( $className, $definition );
+		}
 
-    private function dumpConstructor(string $className, ObjectDefinition $definition) : string
-    {
-        $str = '';
+		return sprintf( 'Object (' . \PHP_EOL . '%s' . \PHP_EOL . ')', $str );
+	}
 
-        $constructorInjection = $definition->getConstructorInjection();
+	private function dumpConstructor( string $className, ObjectDefinition $definition ): string {
+		$str = '';
 
-        if ($constructorInjection !== null) {
-            $parameters = $this->dumpMethodParameters($className, $constructorInjection);
+		$constructorInjection = $definition->getConstructorInjection();
 
-            $str .= sprintf(\PHP_EOL . '    __construct(' . \PHP_EOL . '        %s' . \PHP_EOL . '    )', $parameters);
-        }
+		if ( $constructorInjection !== null ) {
+			$parameters = $this->dumpMethodParameters( $className, $constructorInjection );
 
-        return $str;
-    }
+			$str .= sprintf( \PHP_EOL . '    __construct(' . \PHP_EOL . '        %s' . \PHP_EOL . '    )', $parameters );
+		}
 
-    private function dumpProperties(ObjectDefinition $definition) : string
-    {
-        $str = '';
+		return $str;
+	}
 
-        foreach ($definition->getPropertyInjections() as $propertyInjection) {
-            $value = $propertyInjection->getValue();
-            $valueStr = $value instanceof Definition ? (string) $value : var_export($value, true);
+	private function dumpProperties( ObjectDefinition $definition ): string {
+		$str = '';
 
-            $str .= sprintf(\PHP_EOL . '    $%s = %s', $propertyInjection->getPropertyName(), $valueStr);
-        }
+		foreach ( $definition->getPropertyInjections() as $propertyInjection ) {
+			$value    = $propertyInjection->getValue();
+			$valueStr = $value instanceof Definition ? (string) $value : var_export( $value, true );
 
-        return $str;
-    }
+			$str .= sprintf( \PHP_EOL . '    $%s = %s', $propertyInjection->getPropertyName(), $valueStr );
+		}
 
-    private function dumpMethods(string $className, ObjectDefinition $definition) : string
-    {
-        $str = '';
+		return $str;
+	}
 
-        foreach ($definition->getMethodInjections() as $methodInjection) {
-            $parameters = $this->dumpMethodParameters($className, $methodInjection);
+	private function dumpMethods( string $className, ObjectDefinition $definition ): string {
+		$str = '';
 
-            $str .= sprintf(\PHP_EOL . '    %s(' . \PHP_EOL . '        %s' . \PHP_EOL . '    )', $methodInjection->getMethodName(), $parameters);
-        }
+		foreach ( $definition->getMethodInjections() as $methodInjection ) {
+			$parameters = $this->dumpMethodParameters( $className, $methodInjection );
 
-        return $str;
-    }
+			$str .= sprintf( \PHP_EOL . '    %s(' . \PHP_EOL . '        %s' . \PHP_EOL . '    )', $methodInjection->getMethodName(), $parameters );
+		}
 
-    private function dumpMethodParameters(string $className, MethodInjection $methodInjection) : string
-    {
-        $methodReflection = new \ReflectionMethod($className, $methodInjection->getMethodName());
+		return $str;
+	}
 
-        $args = [];
+	private function dumpMethodParameters( string $className, MethodInjection $methodInjection ): string {
+		$methodReflection = new \ReflectionMethod( $className, $methodInjection->getMethodName() );
 
-        $definitionParameters = $methodInjection->getParameters();
+		$args = array();
 
-        foreach ($methodReflection->getParameters() as $index => $parameter) {
-            if (array_key_exists($index, $definitionParameters)) {
-                $value = $definitionParameters[$index];
-                $valueStr = $value instanceof Definition ? (string) $value : var_export($value, true);
+		$definitionParameters = $methodInjection->getParameters();
 
-                $args[] = sprintf('$%s = %s', $parameter->getName(), $valueStr);
+		foreach ( $methodReflection->getParameters() as $index => $parameter ) {
+			if ( array_key_exists( $index, $definitionParameters ) ) {
+				$value    = $definitionParameters[ $index ];
+				$valueStr = $value instanceof Definition ? (string) $value : var_export( $value, true );
 
-                continue;
-            }
+				$args[] = sprintf( '$%s = %s', $parameter->getName(), $valueStr );
 
-            // If the parameter is optional and wasn't specified, we take its default value
-            if ($parameter->isOptional()) {
-                try {
-                    $value = $parameter->getDefaultValue();
+				continue;
+			}
 
-                    $args[] = sprintf(
-                        '$%s = (default value) %s',
-                        $parameter->getName(),
-                        var_export($value, true)
-                    );
-                    continue;
-                } catch (ReflectionException $e) {
-                    // The default value can't be read through Reflection because it is a PHP internal class
-                }
-            }
+			// If the parameter is optional and wasn't specified, we take its default value
+			if ( $parameter->isOptional() ) {
+				try {
+					$value = $parameter->getDefaultValue();
 
-            $args[] = sprintf('$%s = #UNDEFINED#', $parameter->getName());
-        }
+					$args[] = sprintf(
+						'$%s = (default value) %s',
+						$parameter->getName(),
+						var_export( $value, true )
+					);
+					continue;
+				} catch ( ReflectionException $e ) {
+					// The default value can't be read through Reflection because it is a PHP internal class
+				}
+			}
 
-        return implode(\PHP_EOL . '        ', $args);
-    }
+			$args[] = sprintf( '$%s = #UNDEFINED#', $parameter->getName() );
+		}
+
+		return implode( \PHP_EOL . '        ', $args );
+	}
 }

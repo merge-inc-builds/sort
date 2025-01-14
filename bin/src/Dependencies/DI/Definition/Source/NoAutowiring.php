@@ -12,13 +12,14 @@ use MergeInc\Sort\Dependencies\DI\Definition\ObjectDefinition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class NoAutowiring implements Autowiring
-{
-    public function autowire(string $name, ObjectDefinition $definition = null)
-    {
-        throw new InvalidDefinition(sprintf(
-            'Cannot autowire entry "%s" because autowiring is disabled',
-            $name
-        ));
-    }
+class NoAutowiring implements Autowiring {
+
+	public function autowire( string $name, ObjectDefinition $definition = null ) {
+		throw new InvalidDefinition(
+			sprintf(
+				'Cannot autowire entry "%s" because autowiring is disabled',
+				$name
+			)
+		);
+	}
 }

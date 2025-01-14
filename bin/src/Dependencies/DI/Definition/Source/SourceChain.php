@@ -12,99 +12,99 @@ use MergeInc\Sort\Dependencies\DI\Definition\ExtendsPreviousDefinition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class SourceChain implements DefinitionSource, MutableDefinitionSource
-{
-    /**
-     * @var DefinitionSource[]
-     */
-    private $sources;
+class SourceChain implements DefinitionSource, MutableDefinitionSource {
 
-    /**
-     * @var DefinitionSource
-     */
-    private $rootSource;
+	/**
+	 * @var DefinitionSource[]
+	 */
+	private $sources;
 
-    /**
-     * @var MutableDefinitionSource|null
-     */
-    private $mutableSource;
+	/**
+	 * @var DefinitionSource
+	 */
+	private $rootSource;
 
-    /**
-     * @param DefinitionSource[] $sources
-     */
-    public function __construct(array $sources)
-    {
-        // We want a numerically indexed array to ease the traversal later
-        $this->sources = array_values($sources);
-        $this->rootSource = $this;
-    }
+	/**
+	 * @var MutableDefinitionSource|null
+	 */
+	private $mutableSource;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param int $startIndex Use this parameter to start looking from a specific
-     *                        point in the source chain.
-     */
-    public function getDefinition(string $name, int $startIndex = 0)
-    {
-        $count = count($this->sources);
-        for ($i = $startIndex; $i < $count; ++$i) {
-            $source = $this->sources[$i];
+	/**
+	 * @param DefinitionSource[] $sources
+	 */
+	public function __construct( array $sources ) {
+		// We want a numerically indexed array to ease the traversal later
+		$this->sources    = array_values( $sources );
+		$this->rootSource = $this;
+	}
 
-            $definition = $source->getDefinition($name);
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @param int $startIndex Use this parameter to start looking from a specific
+	 *                        point in the source chain.
+	 */
+	public function getDefinition( string $name, int $startIndex = 0 ) {
+		$count = count( $this->sources );
+		for ( $i = $startIndex; $i < $count; ++$i ) {
+			$source = $this->sources[ $i ];
 
-            if ($definition) {
-                if ($definition instanceof ExtendsPreviousDefinition) {
-                    $this->resolveExtendedDefinition($definition, $i);
-                }
+			$definition = $source->getDefinition( $name );
 
-                return $definition;
-            }
-        }
+			if ( $definition ) {
+				if ( $definition instanceof ExtendsPreviousDefinition ) {
+					$this->resolveExtendedDefinition( $definition, $i );
+				}
 
-        return null;
-    }
+				return $definition;
+			}
+		}
 
-    public function getDefinitions() : array
-    {
-        $names = [];
-        foreach ($this->sources as $source) {
-            $names = array_merge($names, $source->getDefinitions());
-        }
-        $names = array_keys($names);
+		return null;
+	}
 
-        $definitions = array_combine($names, array_map(function (string $name) {
-            return $this->getDefinition($name);
-        }, $names));
+	public function getDefinitions(): array {
+		$names = array();
+		foreach ( $this->sources as $source ) {
+			$names = array_merge( $names, $source->getDefinitions() );
+		}
+		$names = array_keys( $names );
 
-        return $definitions;
-    }
+		$definitions = array_combine(
+			$names,
+			array_map(
+				function ( string $name ) {
+					return $this->getDefinition( $name );
+				},
+				$names
+			)
+		);
 
-    public function addDefinition(Definition $definition)
-    {
-        if (! $this->mutableSource) {
-            throw new \LogicException("The container's definition source has not been initialized correctly");
-        }
+		return $definitions;
+	}
 
-        $this->mutableSource->addDefinition($definition);
-    }
+	public function addDefinition( Definition $definition ) {
+		if ( ! $this->mutableSource ) {
+			throw new \LogicException( "The container's definition source has not been initialized correctly" );
+		}
 
-    private function resolveExtendedDefinition(ExtendsPreviousDefinition $definition, int $currentIndex)
-    {
-        // Look in the next sources only (else infinite recursion, and we can only extend
-        // entries defined in the previous definition files - a previous == next here because
-        // the array was reversed ;) )
-        $subDefinition = $this->getDefinition($definition->getName(), $currentIndex + 1);
+		$this->mutableSource->addDefinition( $definition );
+	}
 
-        if ($subDefinition) {
-            $definition->setExtendedDefinition($subDefinition);
-        }
-    }
+	private function resolveExtendedDefinition( ExtendsPreviousDefinition $definition, int $currentIndex ) {
+		// Look in the next sources only (else infinite recursion, and we can only extend
+		// entries defined in the previous definition files - a previous == next here because
+		// the array was reversed ;) )
+		$subDefinition = $this->getDefinition( $definition->getName(), $currentIndex + 1 );
 
-    public function setMutableDefinitionSource(MutableDefinitionSource $mutableSource)
-    {
-        $this->mutableSource = $mutableSource;
+		if ( $subDefinition ) {
+			$definition->setExtendedDefinition( $subDefinition );
+		}
+	}
 
-        array_unshift($this->sources, $mutableSource);
-    }
+	public function setMutableDefinitionSource( MutableDefinitionSource $mutableSource ) {
+		$this->mutableSource = $mutableSource;
+
+		array_unshift( $this->sources, $mutableSource );
+	}
 }

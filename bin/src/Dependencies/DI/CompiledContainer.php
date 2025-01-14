@@ -22,108 +22,109 @@ use MergeInc\Sort\Dependencies\Invoker\ParameterResolver\ResolverChain;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-abstract class CompiledContainer extends Container
-{
-    /**
-     * This const is overridden in child classes (compiled containers).
-     * @var array
-     */
-    protected const METHOD_MAPPING = [];
+abstract class CompiledContainer extends Container {
 
-    /**
-     * @var InvokerInterface
-     */
-    private $factoryInvoker;
+	/**
+	 * This const is overridden in child classes (compiled containers).
+	 *
+	 * @var array
+	 */
+	protected const METHOD_MAPPING = array();
 
-    /**
-     * {@inheritdoc}
-     */
-    public function get($name)
-    {
-        // Try to find the entry in the singleton map
-        if (isset($this->resolvedEntries[$name]) || array_key_exists($name, $this->resolvedEntries)) {
-            return $this->resolvedEntries[$name];
-        }
+	/**
+	 * @var InvokerInterface
+	 */
+	private $factoryInvoker;
 
-        $method = static::METHOD_MAPPING[$name] ?? null;
+	/**
+	 * {@inheritdoc}
+	 */
+	public function get( $name ) {
+		// Try to find the entry in the singleton map
+		if ( isset( $this->resolvedEntries[ $name ] ) || array_key_exists( $name, $this->resolvedEntries ) ) {
+			return $this->resolvedEntries[ $name ];
+		}
 
-        // If it's a compiled entry, then there is a method in this class
-        if ($method !== null) {
-            // Check if we are already getting this entry -> circular dependency
-            if (isset($this->entriesBeingResolved[$name])) {
-                throw new DependencyException("Circular dependency detected while trying to resolve entry '$name'");
-            }
-            $this->entriesBeingResolved[$name] = true;
+		$method = static::METHOD_MAPPING[ $name ] ?? null;
 
-            try {
-                $value = $this->$method();
-            } finally {
-                unset($this->entriesBeingResolved[$name]);
-            }
+		// If it's a compiled entry, then there is a method in this class
+		if ( $method !== null ) {
+			// Check if we are already getting this entry -> circular dependency
+			if ( isset( $this->entriesBeingResolved[ $name ] ) ) {
+				throw new DependencyException( "Circular dependency detected while trying to resolve entry '$name'" );
+			}
+			$this->entriesBeingResolved[ $name ] = true;
 
-            // Store the entry to always return it without recomputing it
-            $this->resolvedEntries[$name] = $value;
+			try {
+				$value = $this->$method();
+			} finally {
+				unset( $this->entriesBeingResolved[ $name ] );
+			}
 
-            return $value;
-        }
+			// Store the entry to always return it without recomputing it
+			$this->resolvedEntries[ $name ] = $value;
 
-        return parent::get($name);
-    }
+			return $value;
+		}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function has($name)
-    {
-        if (! is_string($name)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The name parameter must be of type string, %s given',
-                is_object($name) ? get_class($name) : gettype($name)
-            ));
-        }
+		return parent::get( $name );
+	}
 
-        // The parent method is overridden to check in our array, it avoids resolving definitions
-        if (isset(static::METHOD_MAPPING[$name])) {
-            return true;
-        }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function has( $name ) {
+		if ( ! is_string( $name ) ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'The name parameter must be of type string, %s given',
+					is_object( $name ) ? get_class( $name ) : gettype( $name )
+				)
+			);
+		}
 
-        return parent::has($name);
-    }
+		// The parent method is overridden to check in our array, it avoids resolving definitions
+		if ( isset( static::METHOD_MAPPING[ $name ] ) ) {
+			return true;
+		}
 
-    protected function setDefinition(string $name, Definition $definition)
-    {
-        // It needs to be forbidden because that would mean get() must go through the definitions
-        // every time, which kinds of defeats the performance gains of the compiled container
-        throw new \LogicException('You cannot set a definition at runtime on a compiled container. You can either put your definitions in a file, disable compilation or ->set() a raw value directly (PHP object, string, int, ...) instead of a PHP-MergeInc\Sort\Dependencies\DI definition.');
-    }
+		return parent::has( $name );
+	}
 
-    /**
-     * Invoke the given callable.
-     */
-    protected function resolveFactory($callable, $entryName, array $extraParameters = [])
-    {
-        // Initialize the factory resolver
-        if (! $this->factoryInvoker) {
-            $parameterResolver = new ResolverChain([
-                new AssociativeArrayResolver,
-                new FactoryParameterResolver($this->delegateContainer),
-                new NumericArrayResolver,
-                new DefaultValueResolver,
-            ]);
+	protected function setDefinition( string $name, Definition $definition ) {
+		// It needs to be forbidden because that would mean get() must go through the definitions
+		// every time, which kinds of defeats the performance gains of the compiled container
+		throw new \LogicException( 'You cannot set a definition at runtime on a compiled container. You can either put your definitions in a file, disable compilation or ->set() a raw value directly (PHP object, string, int, ...) instead of a PHP-MergeInc\Sort\Dependencies\DI definition.' );
+	}
 
-            $this->factoryInvoker = new Invoker($parameterResolver, $this->delegateContainer);
-        }
+	/**
+	 * Invoke the given callable.
+	 */
+	protected function resolveFactory( $callable, $entryName, array $extraParameters = array() ) {
+		// Initialize the factory resolver
+		if ( ! $this->factoryInvoker ) {
+			$parameterResolver = new ResolverChain(
+				array(
+					new AssociativeArrayResolver(),
+					new FactoryParameterResolver( $this->delegateContainer ),
+					new NumericArrayResolver(),
+					new DefaultValueResolver(),
+				)
+			);
 
-        $parameters = [$this->delegateContainer, new RequestedEntryHolder($entryName)];
+			$this->factoryInvoker = new Invoker( $parameterResolver, $this->delegateContainer );
+		}
 
-        $parameters = array_merge($parameters, $extraParameters);
+		$parameters = array( $this->delegateContainer, new RequestedEntryHolder( $entryName ) );
 
-        try {
-            return $this->factoryInvoker->call($callable, $parameters);
-        } catch (NotCallableException $e) {
-            throw new InvalidDefinition("Entry \"$entryName\" cannot be resolved: factory " . $e->getMessage());
-        } catch (NotEnoughParametersException $e) {
-            throw new InvalidDefinition("Entry \"$entryName\" cannot be resolved: " . $e->getMessage());
-        }
-    }
+		$parameters = array_merge( $parameters, $extraParameters );
+
+		try {
+			return $this->factoryInvoker->call( $callable, $parameters );
+		} catch ( NotCallableException $e ) {
+			throw new InvalidDefinition( "Entry \"$entryName\" cannot be resolved: factory " . $e->getMessage() );
+		} catch ( NotEnoughParametersException $e ) {
+			throw new InvalidDefinition( "Entry \"$entryName\" cannot be resolved: " . $e->getMessage() );
+		}
+	}
 }

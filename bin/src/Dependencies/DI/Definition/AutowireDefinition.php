@@ -7,6 +7,6 @@ namespace MergeInc\Sort\Dependencies\DI\Definition;
 /**
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class AutowireDefinition extends ObjectDefinition
-{
+class AutowireDefinition extends ObjectDefinition {
+
 }

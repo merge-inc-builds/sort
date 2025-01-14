@@ -11,17 +11,17 @@ use MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface SelfResolvingDefinition
-{
-    /**
-     * Resolve the definition and return the resulting value.
-     *
-     * @return mixed
-     */
-    public function resolve(ContainerInterface $container);
+interface SelfResolvingDefinition {
 
-    /**
-     * Check if a definition can be resolved.
-     */
-    public function isResolvable(ContainerInterface $container) : bool;
+	/**
+	 * Resolve the definition and return the resulting value.
+	 *
+	 * @return mixed
+	 */
+	public function resolve( ContainerInterface $container );
+
+	/**
+	 * Check if a definition can be resolved.
+	 */
+	public function isResolvable( ContainerInterface $container ): bool;
 }

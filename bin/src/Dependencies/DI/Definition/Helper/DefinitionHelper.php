@@ -11,10 +11,10 @@ use MergeInc\Sort\Dependencies\DI\Definition\Definition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface DefinitionHelper
-{
-    /**
-     * @param string $entryName Container entry name
-     */
-    public function getDefinition(string $entryName) : Definition;
+interface DefinitionHelper {
+
+	/**
+	 * @param string $entryName Container entry name
+	 */
+	public function getDefinition( string $entryName ): Definition;
 }

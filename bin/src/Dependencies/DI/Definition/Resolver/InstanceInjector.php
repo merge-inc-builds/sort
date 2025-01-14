@@ -15,32 +15,30 @@ use MergeInc\Sort\Dependencies\Psr\Container\NotFoundExceptionInterface;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class InstanceInjector extends ObjectCreator
-{
-    /**
-     * Injects dependencies on an existing instance.
-     *
-     * @param InstanceDefinition $definition
-     */
-    public function resolve(Definition $definition, array $parameters = [])
-    {
-        try {
-            $this->injectMethodsAndProperties($definition->getInstance(), $definition->getObjectDefinition());
-        } catch (NotFoundExceptionInterface $e) {
-            $message = sprintf(
-                'Error while injecting dependencies into %s: %s',
-                get_class($definition->getInstance()),
-                $e->getMessage()
-            );
+class InstanceInjector extends ObjectCreator {
 
-            throw new DependencyException($message, 0, $e);
-        }
+	/**
+	 * Injects dependencies on an existing instance.
+	 *
+	 * @param InstanceDefinition $definition
+	 */
+	public function resolve( Definition $definition, array $parameters = array() ) {
+		try {
+			$this->injectMethodsAndProperties( $definition->getInstance(), $definition->getObjectDefinition() );
+		} catch ( NotFoundExceptionInterface $e ) {
+			$message = sprintf(
+				'Error while injecting dependencies into %s: %s',
+				get_class( $definition->getInstance() ),
+				$e->getMessage()
+			);
 
-        return $definition;
-    }
+			throw new DependencyException( $message, 0, $e );
+		}
 
-    public function isResolvable(Definition $definition, array $parameters = []) : bool
-    {
-        return true;
-    }
+		return $definition;
+	}
+
+	public function isResolvable( Definition $definition, array $parameters = array() ): bool {
+		return true;
+	}
 }

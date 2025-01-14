@@ -13,25 +13,25 @@ use MergeInc\Sort\Dependencies\DI\Definition\Exception\InvalidDefinition;
  * @since 4.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface DefinitionResolver
-{
-    /**
-     * Resolve a definition to a value.
-     *
-     * @param Definition $definition Object that defines how the value should be obtained.
-     * @param array      $parameters Optional parameters to use to build the entry.
-     *
-     * @throws InvalidDefinition If the definition cannot be resolved.
-     *
-     * @return mixed Value obtained from the definition.
-     */
-    public function resolve(Definition $definition, array $parameters = []);
+interface DefinitionResolver {
 
-    /**
-     * Check if a definition can be resolved.
-     *
-     * @param Definition $definition Object that defines how the value should be obtained.
-     * @param array      $parameters Optional parameters to use to build the entry.
-     */
-    public function isResolvable(Definition $definition, array $parameters = []) : bool;
+	/**
+	 * Resolve a definition to a value.
+	 *
+	 * @param Definition $definition Object that defines how the value should be obtained.
+	 * @param array      $parameters Optional parameters to use to build the entry.
+	 *
+	 * @throws InvalidDefinition If the definition cannot be resolved.
+	 *
+	 * @return mixed Value obtained from the definition.
+	 */
+	public function resolve( Definition $definition, array $parameters = array() );
+
+	/**
+	 * Check if a definition can be resolved.
+	 *
+	 * @param Definition $definition Object that defines how the value should be obtained.
+	 * @param array      $parameters Optional parameters to use to build the entry.
+	 */
+	public function isResolvable( Definition $definition, array $parameters = array() ): bool;
 }

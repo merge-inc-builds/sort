@@ -11,7 +11,7 @@ use MergeInc\Sort\Dependencies\DI\Definition\Definition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface MutableDefinitionSource extends DefinitionSource
-{
-    public function addDefinition(Definition $definition);
+interface MutableDefinitionSource extends DefinitionSource {
+
+	public function addDefinition( Definition $definition );
 }

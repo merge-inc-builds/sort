@@ -18,57 +18,56 @@ use ReflectionNamedType;
  * @author Quim Calpe <quim@kalpe.com>
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class FactoryParameterResolver implements ParameterResolver
-{
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+class FactoryParameterResolver implements ParameterResolver {
 
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
+	/**
+	 * @var ContainerInterface
+	 */
+	private $container;
 
-    public function getParameters(
-        ReflectionFunctionAbstract $reflection,
-        array $providedParameters,
-        array $resolvedParameters
-    ) : array {
-        $parameters = $reflection->getParameters();
+	public function __construct( ContainerInterface $container ) {
+		$this->container = $container;
+	}
 
-        // Skip parameters already resolved
-        if (! empty($resolvedParameters)) {
-            $parameters = array_diff_key($parameters, $resolvedParameters);
-        }
+	public function getParameters(
+		ReflectionFunctionAbstract $reflection,
+		array $providedParameters,
+		array $resolvedParameters
+	): array {
+		$parameters = $reflection->getParameters();
 
-        foreach ($parameters as $index => $parameter) {
-            $parameterType = $parameter->getType();
-            if (!$parameterType) {
-                // No type
-                continue;
-            }
-            if (!$parameterType instanceof ReflectionNamedType) {
-                // Union types are not supported
-                continue;
-            }
-            if ($parameterType->isBuiltin()) {
-                // Primitive types are not supported
-                continue;
-            }
+		// Skip parameters already resolved
+		if ( ! empty( $resolvedParameters ) ) {
+			$parameters = array_diff_key( $parameters, $resolvedParameters );
+		}
 
-            $parameterClass = $parameterType->getName();
+		foreach ( $parameters as $index => $parameter ) {
+			$parameterType = $parameter->getType();
+			if ( ! $parameterType ) {
+				// No type
+				continue;
+			}
+			if ( ! $parameterType instanceof ReflectionNamedType ) {
+				// Union types are not supported
+				continue;
+			}
+			if ( $parameterType->isBuiltin() ) {
+				// Primitive types are not supported
+				continue;
+			}
 
-            if ($parameterClass === 'MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface') {
-                $resolvedParameters[$index] = $this->container;
-            } elseif ($parameterClass === 'MergeInc\Sort\Dependencies\DI\Factory\RequestedEntry') {
-                // By convention the second parameter is the definition
-                $resolvedParameters[$index] = $providedParameters[1];
-            } elseif ($this->container->has($parameterClass)) {
-                $resolvedParameters[$index] = $this->container->get($parameterClass);
-            }
-        }
+			$parameterClass = $parameterType->getName();
 
-        return $resolvedParameters;
-    }
+			if ( $parameterClass === 'MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface' ) {
+				$resolvedParameters[ $index ] = $this->container;
+			} elseif ( $parameterClass === 'MergeInc\Sort\Dependencies\DI\Factory\RequestedEntry' ) {
+				// By convention the second parameter is the definition
+				$resolvedParameters[ $index ] = $providedParameters[1];
+			} elseif ( $this->container->has( $parameterClass ) ) {
+				$resolvedParameters[ $index ] = $this->container->get( $parameterClass );
+			}
+		}
+
+		return $resolvedParameters;
+	}
 }

@@ -11,76 +11,66 @@ use MergeInc\Sort\Dependencies\DI\Definition\Definition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class MethodInjection implements Definition
-{
-    /**
-     * @var string
-     */
-    private $methodName;
+class MethodInjection implements Definition {
 
-    /**
-     * @var mixed[]
-     */
-    private $parameters = [];
+	/**
+	 * @var string
+	 */
+	private $methodName;
 
-    public function __construct(string $methodName, array $parameters = [])
-    {
-        $this->methodName = $methodName;
-        $this->parameters = $parameters;
-    }
+	/**
+	 * @var mixed[]
+	 */
+	private $parameters = array();
 
-    public static function constructor(array $parameters = []) : self
-    {
-        return new self('__construct', $parameters);
-    }
+	public function __construct( string $methodName, array $parameters = array() ) {
+		$this->methodName = $methodName;
+		$this->parameters = $parameters;
+	}
 
-    public function getMethodName() : string
-    {
-        return $this->methodName;
-    }
+	public static function constructor( array $parameters = array() ): self {
+		return new self( '__construct', $parameters );
+	}
 
-    /**
-     * @return mixed[]
-     */
-    public function getParameters() : array
-    {
-        return $this->parameters;
-    }
+	public function getMethodName(): string {
+		return $this->methodName;
+	}
 
-    /**
-     * Replace the parameters of the definition by a new array of parameters.
-     */
-    public function replaceParameters(array $parameters)
-    {
-        $this->parameters = $parameters;
-    }
+	/**
+	 * @return mixed[]
+	 */
+	public function getParameters(): array {
+		return $this->parameters;
+	}
 
-    public function merge(self $definition)
-    {
-        // In case of conflicts, the current definition prevails.
-        $this->parameters = $this->parameters + $definition->parameters;
-    }
+	/**
+	 * Replace the parameters of the definition by a new array of parameters.
+	 */
+	public function replaceParameters( array $parameters ) {
+		$this->parameters = $parameters;
+	}
 
-    public function getName() : string
-    {
-        return '';
-    }
+	public function merge( self $definition ) {
+		// In case of conflicts, the current definition prevails.
+		$this->parameters = $this->parameters + $definition->parameters;
+	}
 
-    public function setName(string $name)
-    {
-        // The name does not matter for method injections
-    }
+	public function getName(): string {
+		return '';
+	}
 
-    public function replaceNestedDefinitions(callable $replacer)
-    {
-        $this->parameters = array_map($replacer, $this->parameters);
-    }
+	public function setName( string $name ) {
+		// The name does not matter for method injections
+	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString()
-    {
-        return sprintf('method(%s)', $this->methodName);
-    }
+	public function replaceNestedDefinitions( callable $replacer ) {
+		$this->parameters = array_map( $replacer, $this->parameters );
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __toString() {
+		return sprintf( 'method(%s)', $this->methodName );
+	}
 }

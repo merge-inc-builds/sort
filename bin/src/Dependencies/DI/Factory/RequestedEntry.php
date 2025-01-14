@@ -14,10 +14,10 @@ namespace MergeInc\Sort\Dependencies\DI\Factory;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface RequestedEntry
-{
-    /**
-     * Returns the name of the entry that was requested by the container.
-     */
-    public function getName() : string;
+interface RequestedEntry {
+
+	/**
+	 * Returns the name of the entry that was requested by the container.
+	 */
+	public function getName(): string;
 }

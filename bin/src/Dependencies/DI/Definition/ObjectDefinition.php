@@ -15,252 +15,248 @@ use ReflectionClass;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ObjectDefinition implements Definition
-{
-    /**
-     * Entry name (most of the time, same as $classname).
-     * @var string
-     */
-    private $name;
+class ObjectDefinition implements Definition {
 
-    /**
-     * Class name (if null, then the class name is $name).
-     * @var string|null
-     */
-    protected $className;
+	/**
+	 * Entry name (most of the time, same as $classname).
+	 *
+	 * @var string
+	 */
+	private $name;
 
-    /**
-     * Constructor parameter injection.
-     * @var MethodInjection|null
-     */
-    protected $constructorInjection;
+	/**
+	 * Class name (if null, then the class name is $name).
+	 *
+	 * @var string|null
+	 */
+	protected $className;
 
-    /**
-     * Property injections.
-     * @var PropertyInjection[]
-     */
-    protected $propertyInjections = [];
+	/**
+	 * Constructor parameter injection.
+	 *
+	 * @var MethodInjection|null
+	 */
+	protected $constructorInjection;
 
-    /**
-     * Method calls.
-     * @var MethodInjection[][]
-     */
-    protected $methodInjections = [];
+	/**
+	 * Property injections.
+	 *
+	 * @var PropertyInjection[]
+	 */
+	protected $propertyInjections = array();
 
-    /**
-     * @var bool|null
-     */
-    protected $lazy;
+	/**
+	 * Method calls.
+	 *
+	 * @var MethodInjection[][]
+	 */
+	protected $methodInjections = array();
 
-    /**
-     * Store if the class exists. Storing it (in cache) avoids recomputing this.
-     *
-     * @var bool
-     */
-    private $classExists;
+	/**
+	 * @var bool|null
+	 */
+	protected $lazy;
 
-    /**
-     * Store if the class is instantiable. Storing it (in cache) avoids recomputing this.
-     *
-     * @var bool
-     */
-    private $isInstantiable;
+	/**
+	 * Store if the class exists. Storing it (in cache) avoids recomputing this.
+	 *
+	 * @var bool
+	 */
+	private $classExists;
 
-    /**
-     * @param string $name Entry name
-     */
-    public function __construct(string $name, string $className = null)
-    {
-        $this->name = $name;
-        $this->setClassName($className);
-    }
+	/**
+	 * Store if the class is instantiable. Storing it (in cache) avoids recomputing this.
+	 *
+	 * @var bool
+	 */
+	private $isInstantiable;
 
-    public function getName() : string
-    {
-        return $this->name;
-    }
+	/**
+	 * @param string $name Entry name
+	 */
+	public function __construct( string $name, string $className = null ) {
+		$this->name = $name;
+		$this->setClassName( $className );
+	}
 
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
+	public function getName(): string {
+		return $this->name;
+	}
 
-    public function setClassName(string $className = null)
-    {
-        $this->className = $className;
+	public function setName( string $name ) {
+		$this->name = $name;
+	}
 
-        $this->updateCache();
-    }
+	public function setClassName( string $className = null ) {
+		$this->className = $className;
 
-    public function getClassName() : string
-    {
-        if ($this->className !== null) {
-            return $this->className;
-        }
+		$this->updateCache();
+	}
 
-        return $this->name;
-    }
+	public function getClassName(): string {
+		if ( $this->className !== null ) {
+			return $this->className;
+		}
 
-    /**
-     * @return MethodInjection|null
-     */
-    public function getConstructorInjection()
-    {
-        return $this->constructorInjection;
-    }
+		return $this->name;
+	}
 
-    public function setConstructorInjection(MethodInjection $constructorInjection)
-    {
-        $this->constructorInjection = $constructorInjection;
-    }
+	/**
+	 * @return MethodInjection|null
+	 */
+	public function getConstructorInjection() {
+		return $this->constructorInjection;
+	}
 
-    public function completeConstructorInjection(MethodInjection $injection)
-    {
-        if ($this->constructorInjection !== null) {
-            // Merge
-            $this->constructorInjection->merge($injection);
-        } else {
-            // Set
-            $this->constructorInjection = $injection;
-        }
-    }
+	public function setConstructorInjection( MethodInjection $constructorInjection ) {
+		$this->constructorInjection = $constructorInjection;
+	}
 
-    /**
-     * @return PropertyInjection[] Property injections
-     */
-    public function getPropertyInjections() : array
-    {
-        return $this->propertyInjections;
-    }
+	public function completeConstructorInjection( MethodInjection $injection ) {
+		if ( $this->constructorInjection !== null ) {
+			// Merge
+			$this->constructorInjection->merge( $injection );
+		} else {
+			// Set
+			$this->constructorInjection = $injection;
+		}
+	}
 
-    public function addPropertyInjection(PropertyInjection $propertyInjection)
-    {
-        $className = $propertyInjection->getClassName();
-        if ($className) {
-            // Index with the class name to avoid collisions between parent and
-            // child private properties with the same name
-            $key = $className . '::' . $propertyInjection->getPropertyName();
-        } else {
-            $key = $propertyInjection->getPropertyName();
-        }
+	/**
+	 * @return PropertyInjection[] Property injections
+	 */
+	public function getPropertyInjections(): array {
+		return $this->propertyInjections;
+	}
 
-        $this->propertyInjections[$key] = $propertyInjection;
-    }
+	public function addPropertyInjection( PropertyInjection $propertyInjection ) {
+		$className = $propertyInjection->getClassName();
+		if ( $className ) {
+			// Index with the class name to avoid collisions between parent and
+			// child private properties with the same name
+			$key = $className . '::' . $propertyInjection->getPropertyName();
+		} else {
+			$key = $propertyInjection->getPropertyName();
+		}
 
-    /**
-     * @return MethodInjection[] Method injections
-     */
-    public function getMethodInjections() : array
-    {
-        // Return array leafs
-        $injections = [];
-        array_walk_recursive($this->methodInjections, function ($injection) use (&$injections) {
-            $injections[] = $injection;
-        });
+		$this->propertyInjections[ $key ] = $propertyInjection;
+	}
 
-        return $injections;
-    }
+	/**
+	 * @return MethodInjection[] Method injections
+	 */
+	public function getMethodInjections(): array {
+		// Return array leafs
+		$injections = array();
+		array_walk_recursive(
+			$this->methodInjections,
+			function ( $injection ) use ( &$injections ) {
+				$injections[] = $injection;
+			}
+		);
 
-    public function addMethodInjection(MethodInjection $methodInjection)
-    {
-        $method = $methodInjection->getMethodName();
-        if (! isset($this->methodInjections[$method])) {
-            $this->methodInjections[$method] = [];
-        }
-        $this->methodInjections[$method][] = $methodInjection;
-    }
+		return $injections;
+	}
 
-    public function completeFirstMethodInjection(MethodInjection $injection)
-    {
-        $method = $injection->getMethodName();
+	public function addMethodInjection( MethodInjection $methodInjection ) {
+		$method = $methodInjection->getMethodName();
+		if ( ! isset( $this->methodInjections[ $method ] ) ) {
+			$this->methodInjections[ $method ] = array();
+		}
+		$this->methodInjections[ $method ][] = $methodInjection;
+	}
 
-        if (isset($this->methodInjections[$method][0])) {
-            // Merge
-            $this->methodInjections[$method][0]->merge($injection);
-        } else {
-            // Set
-            $this->addMethodInjection($injection);
-        }
-    }
+	public function completeFirstMethodInjection( MethodInjection $injection ) {
+		$method = $injection->getMethodName();
 
-    public function setLazy(bool $lazy = null)
-    {
-        $this->lazy = $lazy;
-    }
+		if ( isset( $this->methodInjections[ $method ][0] ) ) {
+			// Merge
+			$this->methodInjections[ $method ][0]->merge( $injection );
+		} else {
+			// Set
+			$this->addMethodInjection( $injection );
+		}
+	}
 
-    public function isLazy() : bool
-    {
-        if ($this->lazy !== null) {
-            return $this->lazy;
-        }
-        // Default value
-        return false;
-    }
+	public function setLazy( bool $lazy = null ) {
+		$this->lazy = $lazy;
+	}
 
-    public function classExists() : bool
-    {
-        return $this->classExists;
-    }
+	public function isLazy(): bool {
+		if ( $this->lazy !== null ) {
+			return $this->lazy;
+		}
+		// Default value
+		return false;
+	}
 
-    public function isInstantiable() : bool
-    {
-        return $this->isInstantiable;
-    }
+	public function classExists(): bool {
+		return $this->classExists;
+	}
 
-    public function replaceNestedDefinitions(callable $replacer)
-    {
-        array_walk($this->propertyInjections, function (PropertyInjection $propertyInjection) use ($replacer) {
-            $propertyInjection->replaceNestedDefinition($replacer);
-        });
+	public function isInstantiable(): bool {
+		return $this->isInstantiable;
+	}
 
-        if ($this->constructorInjection) {
-            $this->constructorInjection->replaceNestedDefinitions($replacer);
-        }
+	public function replaceNestedDefinitions( callable $replacer ) {
+		array_walk(
+			$this->propertyInjections,
+			function ( PropertyInjection $propertyInjection ) use ( $replacer ) {
+				$propertyInjection->replaceNestedDefinition( $replacer );
+			}
+		);
 
-        array_walk($this->methodInjections, function ($injectionArray) use ($replacer) {
-            array_walk($injectionArray, function (MethodInjection $methodInjection) use ($replacer) {
-                $methodInjection->replaceNestedDefinitions($replacer);
-            });
-        });
-    }
+		if ( $this->constructorInjection ) {
+			$this->constructorInjection->replaceNestedDefinitions( $replacer );
+		}
 
-    /**
-     * Replaces all the wildcards in the string with the given replacements.
-     *
-     * @param string[] $replacements
-     */
-    public function replaceWildcards(array $replacements)
-    {
-        $className = $this->getClassName();
+		array_walk(
+			$this->methodInjections,
+			function ( $injectionArray ) use ( $replacer ) {
+				array_walk(
+					$injectionArray,
+					function ( MethodInjection $methodInjection ) use ( $replacer ) {
+						$methodInjection->replaceNestedDefinitions( $replacer );
+					}
+				);
+			}
+		);
+	}
 
-        foreach ($replacements as $replacement) {
-            $pos = strpos($className, DefinitionArray::WILDCARD);
-            if ($pos !== false) {
-                $className = substr_replace($className, $replacement, $pos, 1);
-            }
-        }
+	/**
+	 * Replaces all the wildcards in the string with the given replacements.
+	 *
+	 * @param string[] $replacements
+	 */
+	public function replaceWildcards( array $replacements ) {
+		$className = $this->getClassName();
 
-        $this->setClassName($className);
-    }
+		foreach ( $replacements as $replacement ) {
+			$pos = strpos( $className, DefinitionArray::WILDCARD );
+			if ( $pos !== false ) {
+				$className = substr_replace( $className, $replacement, $pos, 1 );
+			}
+		}
 
-    public function __toString()
-    {
-        return (new ObjectDefinitionDumper)->dump($this);
-    }
+		$this->setClassName( $className );
+	}
 
-    private function updateCache()
-    {
-        $className = $this->getClassName();
+	public function __toString() {
+		return ( new ObjectDefinitionDumper() )->dump( $this );
+	}
 
-        $this->classExists = class_exists($className) || interface_exists($className);
+	private function updateCache() {
+		$className = $this->getClassName();
 
-        if (! $this->classExists) {
-            $this->isInstantiable = false;
+		$this->classExists = class_exists( $className ) || interface_exists( $className );
 
-            return;
-        }
+		if ( ! $this->classExists ) {
+			$this->isInstantiable = false;
 
-        $class = new ReflectionClass($className);
-        $this->isInstantiable = $class->isInstantiable();
-    }
+			return;
+		}
+
+		$class                = new ReflectionClass( $className );
+		$this->isInstantiable = $class->isInstantiable();
+	}
 }

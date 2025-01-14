@@ -12,13 +12,13 @@ use MergeInc\Sort\Dependencies\DI\Definition\ObjectDefinition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-interface Autowiring
-{
-    /**
-     * Autowire the given definition.
-     *
-     * @throws InvalidDefinition An invalid definition was found.
-     * @return ObjectDefinition|null
-     */
-    public function autowire(string $name, ObjectDefinition $definition = null);
+interface Autowiring {
+
+	/**
+	 * Autowire the given definition.
+	 *
+	 * @throws InvalidDefinition An invalid definition was found.
+	 * @return ObjectDefinition|null
+	 */
+	public function autowire( string $name, ObjectDefinition $definition = null );
 }

@@ -31,267 +31,266 @@ use UnexpectedValueException;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class AnnotationBasedAutowiring implements DefinitionSource, Autowiring
-{
-    /**
-     * @var Reader
-     */
-    private $annotationReader;
+class AnnotationBasedAutowiring implements DefinitionSource, Autowiring {
 
-    /**
-     * @var MergeInc\Sort\Dependencies\PhpDocReader
-     */
-    private $phpDocReader;
+	/**
+	 * @var Reader
+	 */
+	private $annotationReader;
 
-    /**
-     * @var bool
-     */
-    private $ignorePhpDocErrors;
+	/**
+	 * @var MergeInc\Sort\Dependencies\PhpDocReader
+	 */
+	private $phpDocReader;
 
-    public function __construct($ignorePhpDocErrors = false)
-    {
-        $this->ignorePhpDocErrors = (bool) $ignorePhpDocErrors;
-    }
+	/**
+	 * @var bool
+	 */
+	private $ignorePhpDocErrors;
 
-    public function autowire(string $name, ObjectDefinition $definition = null)
-    {
-        $className = $definition ? $definition->getClassName() : $name;
+	public function __construct( $ignorePhpDocErrors = false ) {
+		$this->ignorePhpDocErrors = (bool) $ignorePhpDocErrors;
+	}
 
-        if (!class_exists($className) && !interface_exists($className)) {
-            return $definition;
-        }
+	public function autowire( string $name, ObjectDefinition $definition = null ) {
+		$className = $definition ? $definition->getClassName() : $name;
 
-        $definition = $definition ?: new ObjectDefinition($name);
+		if ( ! class_exists( $className ) && ! interface_exists( $className ) ) {
+			return $definition;
+		}
 
-        $class = new ReflectionClass($className);
+		$definition = $definition ?: new ObjectDefinition( $name );
 
-        $this->readInjectableAnnotation($class, $definition);
+		$class = new ReflectionClass( $className );
 
-        // Browse the class properties looking for annotated properties
-        $this->readProperties($class, $definition);
+		$this->readInjectableAnnotation( $class, $definition );
 
-        // Browse the object's methods looking for annotated methods
-        $this->readMethods($class, $definition);
+		// Browse the class properties looking for annotated properties
+		$this->readProperties( $class, $definition );
 
-        return $definition;
-    }
+		// Browse the object's methods looking for annotated methods
+		$this->readMethods( $class, $definition );
 
-    /**
-     * {@inheritdoc}
-     * @throws InvalidAnnotation
-     * @throws InvalidArgumentException The class doesn't exist
-     */
-    public function getDefinition(string $name)
-    {
-        return $this->autowire($name);
-    }
+		return $definition;
+	}
 
-    /**
-     * Autowiring cannot guess all existing definitions.
-     */
-    public function getDefinitions() : array
-    {
-        return [];
-    }
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @throws InvalidAnnotation
+	 * @throws InvalidArgumentException The class doesn't exist
+	 */
+	public function getDefinition( string $name ) {
+		return $this->autowire( $name );
+	}
 
-    /**
-     * Browse the class properties looking for annotated properties.
-     */
-    private function readProperties(ReflectionClass $class, ObjectDefinition $definition)
-    {
-        foreach ($class->getProperties() as $property) {
-            if ($property->isStatic()) {
-                continue;
-            }
-            $this->readProperty($property, $definition);
-        }
+	/**
+	 * Autowiring cannot guess all existing definitions.
+	 */
+	public function getDefinitions(): array {
+		return array();
+	}
 
-        // Read also the *private* properties of the parent classes
-        /** @noinspection PhpAssignmentInConditionInspection */
-        while ($class = $class->getParentClass()) {
-            foreach ($class->getProperties(ReflectionProperty::IS_PRIVATE) as $property) {
-                if ($property->isStatic()) {
-                    continue;
-                }
-                $this->readProperty($property, $definition, $class->getName());
-            }
-        }
-    }
+	/**
+	 * Browse the class properties looking for annotated properties.
+	 */
+	private function readProperties( ReflectionClass $class, ObjectDefinition $definition ) {
+		foreach ( $class->getProperties() as $property ) {
+			if ( $property->isStatic() ) {
+				continue;
+			}
+			$this->readProperty( $property, $definition );
+		}
 
-    private function readProperty(ReflectionProperty $property, ObjectDefinition $definition, $classname = null)
-    {
-        // Look for @Inject annotation
-        $annotation = $this->getAnnotationReader()->getPropertyAnnotation($property, 'MergeInc\Sort\Dependencies\DI\Annotation\Inject');
-        if (!$annotation instanceof Inject) {
-            return;
-        }
+		// Read also the *private* properties of the parent classes
+		/** @noinspection PhpAssignmentInConditionInspection */
+		while ( $class = $class->getParentClass() ) {
+			foreach ( $class->getProperties( ReflectionProperty::IS_PRIVATE ) as $property ) {
+				if ( $property->isStatic() ) {
+					continue;
+				}
+				$this->readProperty( $property, $definition, $class->getName() );
+			}
+		}
+	}
 
-        // Try to @Inject("name") or look for @var content
-        $entryName = $annotation->getName() ?: $this->getPhpDocReader()->getPropertyClass($property);
+	private function readProperty( ReflectionProperty $property, ObjectDefinition $definition, $classname = null ) {
+		// Look for @Inject annotation
+		$annotation = $this->getAnnotationReader()->getPropertyAnnotation( $property, 'MergeInc\Sort\Dependencies\DI\Annotation\Inject' );
+		if ( ! $annotation instanceof Inject ) {
+			return;
+		}
 
-        // Try using PHP7.4 typed properties
-        if (\PHP_VERSION_ID > 70400
-            && $entryName === null
-            && $property->getType() instanceof ReflectionNamedType
-            && (class_exists($property->getType()->getName()) || interface_exists($property->getType()->getName()))
-        ) {
-            $entryName = $property->getType()->getName();
-        }
+		// Try to @Inject("name") or look for @var content
+		$entryName = $annotation->getName() ?: $this->getPhpDocReader()->getPropertyClass( $property );
 
-        if ($entryName === null) {
-            throw new InvalidAnnotation(sprintf(
-                '@Inject found on property %s::%s but unable to guess what to inject, use a @var annotation',
-                $property->getDeclaringClass()->getName(),
-                $property->getName()
-            ));
-        }
+		// Try using PHP7.4 typed properties
+		if ( \PHP_VERSION_ID > 70400
+			&& $entryName === null
+			&& $property->getType() instanceof ReflectionNamedType
+			&& ( class_exists( $property->getType()->getName() ) || interface_exists( $property->getType()->getName() ) )
+		) {
+			$entryName = $property->getType()->getName();
+		}
 
-        $definition->addPropertyInjection(
-            new PropertyInjection($property->getName(), new Reference($entryName), $classname)
-        );
-    }
+		if ( $entryName === null ) {
+			throw new InvalidAnnotation(
+				sprintf(
+					'@Inject found on property %s::%s but unable to guess what to inject, use a @var annotation',
+					$property->getDeclaringClass()->getName(),
+					$property->getName()
+				)
+			);
+		}
 
-    /**
-     * Browse the object's methods looking for annotated methods.
-     */
-    private function readMethods(ReflectionClass $class, ObjectDefinition $objectDefinition)
-    {
-        // This will look in all the methods, including those of the parent classes
-        foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if ($method->isStatic()) {
-                continue;
-            }
+		$definition->addPropertyInjection(
+			new PropertyInjection( $property->getName(), new Reference( $entryName ), $classname )
+		);
+	}
 
-            $methodInjection = $this->getMethodInjection($method);
+	/**
+	 * Browse the object's methods looking for annotated methods.
+	 */
+	private function readMethods( ReflectionClass $class, ObjectDefinition $objectDefinition ) {
+		// This will look in all the methods, including those of the parent classes
+		foreach ( $class->getMethods( ReflectionMethod::IS_PUBLIC ) as $method ) {
+			if ( $method->isStatic() ) {
+				continue;
+			}
 
-            if (! $methodInjection) {
-                continue;
-            }
+			$methodInjection = $this->getMethodInjection( $method );
 
-            if ($method->isConstructor()) {
-                $objectDefinition->completeConstructorInjection($methodInjection);
-            } else {
-                $objectDefinition->completeFirstMethodInjection($methodInjection);
-            }
-        }
-    }
+			if ( ! $methodInjection ) {
+				continue;
+			}
 
-    /**
-     * @return MethodInjection|null
-     */
-    private function getMethodInjection(ReflectionMethod $method)
-    {
-        // Look for @Inject annotation
-        try {
-            $annotation = $this->getAnnotationReader()->getMethodAnnotation($method, 'MergeInc\Sort\Dependencies\DI\Annotation\Inject');
-        } catch (InvalidAnnotation $e) {
-            throw new InvalidAnnotation(sprintf(
-                '@Inject annotation on %s::%s is malformed. %s',
-                $method->getDeclaringClass()->getName(),
-                $method->getName(),
-                $e->getMessage()
-            ), 0, $e);
-        }
+			if ( $method->isConstructor() ) {
+				$objectDefinition->completeConstructorInjection( $methodInjection );
+			} else {
+				$objectDefinition->completeFirstMethodInjection( $methodInjection );
+			}
+		}
+	}
 
-        // @Inject on constructor is implicit
-        if (! ($annotation || $method->isConstructor())) {
-            return null;
-        }
+	/**
+	 * @return MethodInjection|null
+	 */
+	private function getMethodInjection( ReflectionMethod $method ) {
+		// Look for @Inject annotation
+		try {
+			$annotation = $this->getAnnotationReader()->getMethodAnnotation( $method, 'MergeInc\Sort\Dependencies\DI\Annotation\Inject' );
+		} catch ( InvalidAnnotation $e ) {
+			throw new InvalidAnnotation(
+				sprintf(
+					'@Inject annotation on %s::%s is malformed. %s',
+					$method->getDeclaringClass()->getName(),
+					$method->getName(),
+					$e->getMessage()
+				),
+				0,
+				$e
+			);
+		}
 
-        $annotationParameters = $annotation instanceof Inject ? $annotation->getParameters() : [];
+		// @Inject on constructor is implicit
+		if ( ! ( $annotation || $method->isConstructor() ) ) {
+			return null;
+		}
 
-        $parameters = [];
-        foreach ($method->getParameters() as $index => $parameter) {
-            $entryName = $this->getMethodParameter($index, $parameter, $annotationParameters);
+		$annotationParameters = $annotation instanceof Inject ? $annotation->getParameters() : array();
 
-            if ($entryName !== null) {
-                $parameters[$index] = new Reference($entryName);
-            }
-        }
+		$parameters = array();
+		foreach ( $method->getParameters() as $index => $parameter ) {
+			$entryName = $this->getMethodParameter( $index, $parameter, $annotationParameters );
 
-        if ($method->isConstructor()) {
-            return MethodInjection::constructor($parameters);
-        }
+			if ( $entryName !== null ) {
+				$parameters[ $index ] = new Reference( $entryName );
+			}
+		}
 
-        return new MethodInjection($method->getName(), $parameters);
-    }
+		if ( $method->isConstructor() ) {
+			return MethodInjection::constructor( $parameters );
+		}
 
-    /**
-     * @param int                 $parameterIndex
-     *
-     * @return string|null Entry name or null if not found.
-     */
-    private function getMethodParameter($parameterIndex, ReflectionParameter $parameter, array $annotationParameters)
-    {
-        // @Inject has definition for this parameter (by index, or by name)
-        if (isset($annotationParameters[$parameterIndex])) {
-            return $annotationParameters[$parameterIndex];
-        }
-        if (isset($annotationParameters[$parameter->getName()])) {
-            return $annotationParameters[$parameter->getName()];
-        }
+		return new MethodInjection( $method->getName(), $parameters );
+	}
 
-        // Skip optional parameters if not explicitly defined
-        if ($parameter->isOptional()) {
-            return null;
-        }
+	/**
+	 * @param int $parameterIndex
+	 *
+	 * @return string|null Entry name or null if not found.
+	 */
+	private function getMethodParameter( $parameterIndex, ReflectionParameter $parameter, array $annotationParameters ) {
+		// @Inject has definition for this parameter (by index, or by name)
+		if ( isset( $annotationParameters[ $parameterIndex ] ) ) {
+			return $annotationParameters[ $parameterIndex ];
+		}
+		if ( isset( $annotationParameters[ $parameter->getName() ] ) ) {
+			return $annotationParameters[ $parameter->getName() ];
+		}
 
-        // Try to use the type-hinting
-        $parameterType = $parameter->getType();
-        if ($parameterType && $parameterType instanceof ReflectionNamedType && !$parameterType->isBuiltin()) {
-            return $parameterType->getName();
-        }
+		// Skip optional parameters if not explicitly defined
+		if ( $parameter->isOptional() ) {
+			return null;
+		}
 
-        // Last resort, look for @param tag
-        return $this->getPhpDocReader()->getParameterClass($parameter);
-    }
+		// Try to use the type-hinting
+		$parameterType = $parameter->getType();
+		if ( $parameterType && $parameterType instanceof ReflectionNamedType && ! $parameterType->isBuiltin() ) {
+			return $parameterType->getName();
+		}
 
-    /**
-     * @return Reader The annotation reader
-     */
-    public function getAnnotationReader()
-    {
-        if ($this->annotationReader === null) {
-            AnnotationRegistry::registerLoader('class_exists');
-            $this->annotationReader = new SimpleAnnotationReader();
-            $this->annotationReader->addNamespace('MergeInc\Sort\Dependencies\DI\Annotation');
-        }
+		// Last resort, look for @param tag
+		return $this->getPhpDocReader()->getParameterClass( $parameter );
+	}
 
-        return $this->annotationReader;
-    }
+	/**
+	 * @return Reader The annotation reader
+	 */
+	public function getAnnotationReader() {
+		if ( $this->annotationReader === null ) {
+			AnnotationRegistry::registerLoader( 'class_exists' );
+			$this->annotationReader = new SimpleAnnotationReader();
+			$this->annotationReader->addNamespace( 'MergeInc\Sort\Dependencies\DI\Annotation' );
+		}
 
-    /**
-     * @return MergeInc\Sort\Dependencies\PhpDocReader
-     */
-    private function getPhpDocReader()
-    {
-        if ($this->phpDocReader === null) {
-            $this->phpDocReader = new PhpDocReader($this->ignorePhpDocErrors);
-        }
+		return $this->annotationReader;
+	}
 
-        return $this->phpDocReader;
-    }
+	/**
+	 * @return MergeInc\Sort\Dependencies\PhpDocReader
+	 */
+	private function getPhpDocReader() {
+		if ( $this->phpDocReader === null ) {
+			$this->phpDocReader = new PhpDocReader( $this->ignorePhpDocErrors );
+		}
 
-    private function readInjectableAnnotation(ReflectionClass $class, ObjectDefinition $definition)
-    {
-        try {
-            /** @var Injectable|null $annotation */
-            $annotation = $this->getAnnotationReader()
-                ->getClassAnnotation($class, 'MergeInc\Sort\Dependencies\DI\Annotation\Injectable');
-        } catch (UnexpectedValueException $e) {
-            throw new InvalidAnnotation(sprintf(
-                'Error while reading @Injectable on %s: %s',
-                $class->getName(),
-                $e->getMessage()
-            ), 0, $e);
-        }
+		return $this->phpDocReader;
+	}
 
-        if (! $annotation) {
-            return;
-        }
+	private function readInjectableAnnotation( ReflectionClass $class, ObjectDefinition $definition ) {
+		try {
+			/** @var Injectable|null $annotation */
+			$annotation = $this->getAnnotationReader()
+				->getClassAnnotation( $class, 'MergeInc\Sort\Dependencies\DI\Annotation\Injectable' );
+		} catch ( UnexpectedValueException $e ) {
+			throw new InvalidAnnotation(
+				sprintf(
+					'Error while reading @Injectable on %s: %s',
+					$class->getName(),
+					$e->getMessage()
+				),
+				0,
+				$e
+			);
+		}
 
-        if ($annotation->isLazy() !== null) {
-            $definition->setLazy($annotation->isLazy());
-        }
-    }
+		if ( ! $annotation ) {
+			return;
+		}
+
+		if ( $annotation->isLazy() !== null ) {
+			$definition->setLazy( $annotation->isLazy() );
+		}
+	}
 }

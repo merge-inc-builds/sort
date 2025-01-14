@@ -11,78 +11,70 @@ use MergeInc\Sort\Dependencies\DI\Definition\ObjectDefinition;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class SourceCache implements DefinitionSource, MutableDefinitionSource
-{
-    /**
-     * @var string
-     */
-    const CACHE_KEY = 'php-di.definitions.';
+class SourceCache implements DefinitionSource, MutableDefinitionSource {
 
-    /**
-     * @var DefinitionSource
-     */
-    private $cachedSource;
+	/**
+	 * @var string
+	 */
+	const CACHE_KEY = 'php-di.definitions.';
 
-    /**
-     * @var string
-     */
-    private $cacheNamespace;
+	/**
+	 * @var DefinitionSource
+	 */
+	private $cachedSource;
 
-    public function __construct(DefinitionSource $cachedSource, string $cacheNamespace = '')
-    {
-        $this->cachedSource = $cachedSource;
-        $this->cacheNamespace = $cacheNamespace;
-    }
+	/**
+	 * @var string
+	 */
+	private $cacheNamespace;
 
-    public function getDefinition(string $name)
-    {
-        $definition = apcu_fetch($this->getCacheKey($name));
+	public function __construct( DefinitionSource $cachedSource, string $cacheNamespace = '' ) {
+		$this->cachedSource   = $cachedSource;
+		$this->cacheNamespace = $cacheNamespace;
+	}
 
-        if ($definition === false) {
-            $definition = $this->cachedSource->getDefinition($name);
+	public function getDefinition( string $name ) {
+		$definition = apcu_fetch( $this->getCacheKey( $name ) );
 
-            // Update the cache
-            if ($this->shouldBeCached($definition)) {
-                apcu_store($this->getCacheKey($name), $definition);
-            }
-        }
+		if ( $definition === false ) {
+			$definition = $this->cachedSource->getDefinition( $name );
 
-        return $definition;
-    }
+			// Update the cache
+			if ( $this->shouldBeCached( $definition ) ) {
+				apcu_store( $this->getCacheKey( $name ), $definition );
+			}
+		}
 
-    /**
-     * Used only for the compilation so we can skip the cache safely.
-     */
-    public function getDefinitions() : array
-    {
-        return $this->cachedSource->getDefinitions();
-    }
+		return $definition;
+	}
 
-    public static function isSupported() : bool
-    {
-        return function_exists('apcu_fetch')
-            && ini_get('apc.enabled')
-            && ! ('cli' === \PHP_SAPI && ! ini_get('apc.enable_cli'));
-    }
+	/**
+	 * Used only for the compilation so we can skip the cache safely.
+	 */
+	public function getDefinitions(): array {
+		return $this->cachedSource->getDefinitions();
+	}
 
-    public function getCacheKey(string $name) : string
-    {
-        return self::CACHE_KEY . $this->cacheNamespace . $name;
-    }
+	public static function isSupported(): bool {
+		return function_exists( 'apcu_fetch' )
+			&& ini_get( 'apc.enabled' )
+			&& ! ( 'cli' === \PHP_SAPI && ! ini_get( 'apc.enable_cli' ) );
+	}
 
-    public function addDefinition(Definition $definition)
-    {
-        throw new \LogicException('You cannot set a definition at runtime on a container that has caching enabled. Doing so would risk caching the definition for the next execution, where it might be different. You can either put your definitions in a file, remove the cache or ->set() a raw value directly (PHP object, string, int, ...) instead of a PHP-MergeInc\Sort\Dependencies\DI definition.');
-    }
+	public function getCacheKey( string $name ): string {
+		return self::CACHE_KEY . $this->cacheNamespace . $name;
+	}
 
-    private function shouldBeCached(Definition $definition = null) : bool
-    {
-        return
-            // Cache missing definitions
-            ($definition === null)
-            // Object definitions are used with `make()`
-            || ($definition instanceof ObjectDefinition)
-            // Autowired definitions cannot be all compiled and are used with `make()`
-            || ($definition instanceof AutowireDefinition);
-    }
+	public function addDefinition( Definition $definition ) {
+		throw new \LogicException( 'You cannot set a definition at runtime on a container that has caching enabled. Doing so would risk caching the definition for the next execution, where it might be different. You can either put your definitions in a file, remove the cache or ->set() a raw value directly (PHP object, string, int, ...) instead of a PHP-MergeInc\Sort\Dependencies\DI definition.' );
+	}
+
+	private function shouldBeCached( Definition $definition = null ): bool {
+		return // Cache missing definitions
+			( $definition === null )
+			// Object definitions are used with `make()`
+			|| ( $definition instanceof ObjectDefinition )
+			// Autowired definitions cannot be all compiled and are used with `make()`
+			|| ( $definition instanceof AutowireDefinition );
+	}
 }

@@ -17,26 +17,25 @@ namespace MergeInc\Sort\Dependencies\DI\Annotation;
  * @author Domenic Muskulus <domenic@muskulus.eu>
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-final class Injectable
-{
-    /**
-     * Should the object be lazy-loaded.
-     * @var bool|null
-     */
-    private $lazy;
+final class Injectable {
 
-    public function __construct(array $values)
-    {
-        if (isset($values['lazy'])) {
-            $this->lazy = (bool) $values['lazy'];
-        }
-    }
+	/**
+	 * Should the object be lazy-loaded.
+	 *
+	 * @var bool|null
+	 */
+	private $lazy;
 
-    /**
-     * @return bool|null
-     */
-    public function isLazy()
-    {
-        return $this->lazy;
-    }
+	public function __construct( array $values ) {
+		if ( isset( $values['lazy'] ) ) {
+			$this->lazy = (bool) $values['lazy'];
+		}
+	}
+
+	/**
+	 * @return bool|null
+	 */
+	public function isLazy() {
+		return $this->lazy;
+	}
 }

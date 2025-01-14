@@ -24,111 +24,107 @@ use MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ResolverDispatcher implements DefinitionResolver
-{
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+class ResolverDispatcher implements DefinitionResolver {
 
-    /**
-     * @var ProxyFactory
-     */
-    private $proxyFactory;
+	/**
+	 * @var ContainerInterface
+	 */
+	private $container;
 
-    private $arrayResolver;
-    private $factoryResolver;
-    private $decoratorResolver;
-    private $objectResolver;
-    private $instanceResolver;
-    private $envVariableResolver;
+	/**
+	 * @var ProxyFactory
+	 */
+	private $proxyFactory;
 
-    public function __construct(ContainerInterface $container, ProxyFactory $proxyFactory)
-    {
-        $this->container = $container;
-        $this->proxyFactory = $proxyFactory;
-    }
+	private $arrayResolver;
+	private $factoryResolver;
+	private $decoratorResolver;
+	private $objectResolver;
+	private $instanceResolver;
+	private $envVariableResolver;
 
-    /**
-     * Resolve a definition to a value.
-     *
-     * @param Definition $definition Object that defines how the value should be obtained.
-     * @param array      $parameters Optional parameters to use to build the entry.
-     *
-     * @throws InvalidDefinition If the definition cannot be resolved.
-     *
-     * @return mixed Value obtained from the definition.
-     */
-    public function resolve(Definition $definition, array $parameters = [])
-    {
-        // Special case, tested early for speed
-        if ($definition instanceof SelfResolvingDefinition) {
-            return $definition->resolve($this->container);
-        }
+	public function __construct( ContainerInterface $container, ProxyFactory $proxyFactory ) {
+		$this->container    = $container;
+		$this->proxyFactory = $proxyFactory;
+	}
 
-        $definitionResolver = $this->getDefinitionResolver($definition);
+	/**
+	 * Resolve a definition to a value.
+	 *
+	 * @param Definition $definition Object that defines how the value should be obtained.
+	 * @param array      $parameters Optional parameters to use to build the entry.
+	 *
+	 * @throws InvalidDefinition If the definition cannot be resolved.
+	 *
+	 * @return mixed Value obtained from the definition.
+	 */
+	public function resolve( Definition $definition, array $parameters = array() ) {
+		// Special case, tested early for speed
+		if ( $definition instanceof SelfResolvingDefinition ) {
+			return $definition->resolve( $this->container );
+		}
 
-        return $definitionResolver->resolve($definition, $parameters);
-    }
+		$definitionResolver = $this->getDefinitionResolver( $definition );
 
-    public function isResolvable(Definition $definition, array $parameters = []) : bool
-    {
-        // Special case, tested early for speed
-        if ($definition instanceof SelfResolvingDefinition) {
-            return $definition->isResolvable($this->container);
-        }
+		return $definitionResolver->resolve( $definition, $parameters );
+	}
 
-        $definitionResolver = $this->getDefinitionResolver($definition);
+	public function isResolvable( Definition $definition, array $parameters = array() ): bool {
+		// Special case, tested early for speed
+		if ( $definition instanceof SelfResolvingDefinition ) {
+			return $definition->isResolvable( $this->container );
+		}
 
-        return $definitionResolver->isResolvable($definition, $parameters);
-    }
+		$definitionResolver = $this->getDefinitionResolver( $definition );
 
-    /**
-     * Returns a resolver capable of handling the given definition.
-     *
-     * @throws \RuntimeException No definition resolver was found for this type of definition.
-     */
-    private function getDefinitionResolver(Definition $definition) : DefinitionResolver
-    {
-        switch (true) {
-            case $definition instanceof ObjectDefinition:
-                if (! $this->objectResolver) {
-                    $this->objectResolver = new ObjectCreator($this, $this->proxyFactory);
-                }
+		return $definitionResolver->isResolvable( $definition, $parameters );
+	}
 
-                return $this->objectResolver;
-            case $definition instanceof DecoratorDefinition:
-                if (! $this->decoratorResolver) {
-                    $this->decoratorResolver = new DecoratorResolver($this->container, $this);
-                }
+	/**
+	 * Returns a resolver capable of handling the given definition.
+	 *
+	 * @throws \RuntimeException No definition resolver was found for this type of definition.
+	 */
+	private function getDefinitionResolver( Definition $definition ): DefinitionResolver {
+		switch ( true ) {
+			case $definition instanceof ObjectDefinition:
+				if ( ! $this->objectResolver ) {
+					$this->objectResolver = new ObjectCreator( $this, $this->proxyFactory );
+				}
 
-                return $this->decoratorResolver;
-            case $definition instanceof FactoryDefinition:
-                if (! $this->factoryResolver) {
-                    $this->factoryResolver = new FactoryResolver($this->container, $this);
-                }
+				return $this->objectResolver;
+			case $definition instanceof DecoratorDefinition:
+				if ( ! $this->decoratorResolver ) {
+					$this->decoratorResolver = new DecoratorResolver( $this->container, $this );
+				}
 
-                return $this->factoryResolver;
-            case $definition instanceof ArrayDefinition:
-                if (! $this->arrayResolver) {
-                    $this->arrayResolver = new ArrayResolver($this);
-                }
+				return $this->decoratorResolver;
+			case $definition instanceof FactoryDefinition:
+				if ( ! $this->factoryResolver ) {
+					$this->factoryResolver = new FactoryResolver( $this->container, $this );
+				}
 
-                return $this->arrayResolver;
-            case $definition instanceof EnvironmentVariableDefinition:
-                if (! $this->envVariableResolver) {
-                    $this->envVariableResolver = new EnvironmentVariableResolver($this);
-                }
+				return $this->factoryResolver;
+			case $definition instanceof ArrayDefinition:
+				if ( ! $this->arrayResolver ) {
+					$this->arrayResolver = new ArrayResolver( $this );
+				}
 
-                return $this->envVariableResolver;
-            case $definition instanceof InstanceDefinition:
-                if (! $this->instanceResolver) {
-                    $this->instanceResolver = new InstanceInjector($this, $this->proxyFactory);
-                }
+				return $this->arrayResolver;
+			case $definition instanceof EnvironmentVariableDefinition:
+				if ( ! $this->envVariableResolver ) {
+					$this->envVariableResolver = new EnvironmentVariableResolver( $this );
+				}
 
-                return $this->instanceResolver;
-            default:
-                throw new \RuntimeException('No definition resolver was configured for definition of type ' . get_class($definition));
-        }
-    }
+				return $this->envVariableResolver;
+			case $definition instanceof InstanceDefinition:
+				if ( ! $this->instanceResolver ) {
+					$this->instanceResolver = new InstanceInjector( $this, $this->proxyFactory );
+				}
+
+				return $this->instanceResolver;
+			default:
+				throw new \RuntimeException( 'No definition resolver was configured for definition of type ' . get_class( $definition ) );
+		}
+	}
 }

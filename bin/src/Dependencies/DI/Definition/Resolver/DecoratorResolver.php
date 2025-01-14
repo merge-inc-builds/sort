@@ -15,68 +15,69 @@ use MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class DecoratorResolver implements DefinitionResolver
-{
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+class DecoratorResolver implements DefinitionResolver {
 
-    /**
-     * @var DefinitionResolver
-     */
-    private $definitionResolver;
+	/**
+	 * @var ContainerInterface
+	 */
+	private $container;
 
-    /**
-     * The resolver needs a container. This container will be passed to the factory as a parameter
-     * so that the factory can access other entries of the container.
-     *
-     * @param DefinitionResolver $definitionResolver Used to resolve nested definitions.
-     */
-    public function __construct(ContainerInterface $container, DefinitionResolver $definitionResolver)
-    {
-        $this->container = $container;
-        $this->definitionResolver = $definitionResolver;
-    }
+	/**
+	 * @var DefinitionResolver
+	 */
+	private $definitionResolver;
 
-    /**
-     * Resolve a decorator definition to a value.
-     *
-     * This will call the callable of the definition and pass it the decorated entry.
-     *
-     * @param DecoratorDefinition $definition
-     */
-    public function resolve(Definition $definition, array $parameters = [])
-    {
-        $callable = $definition->getCallable();
+	/**
+	 * The resolver needs a container. This container will be passed to the factory as a parameter
+	 * so that the factory can access other entries of the container.
+	 *
+	 * @param DefinitionResolver $definitionResolver Used to resolve nested definitions.
+	 */
+	public function __construct( ContainerInterface $container, DefinitionResolver $definitionResolver ) {
+		$this->container          = $container;
+		$this->definitionResolver = $definitionResolver;
+	}
 
-        if (! is_callable($callable)) {
-            throw new InvalidDefinition(sprintf(
-                'The decorator "%s" is not callable',
-                $definition->getName()
-            ));
-        }
+	/**
+	 * Resolve a decorator definition to a value.
+	 *
+	 * This will call the callable of the definition and pass it the decorated entry.
+	 *
+	 * @param DecoratorDefinition $definition
+	 */
+	public function resolve( Definition $definition, array $parameters = array() ) {
+		$callable = $definition->getCallable();
 
-        $decoratedDefinition = $definition->getDecoratedDefinition();
+		if ( ! is_callable( $callable ) ) {
+			throw new InvalidDefinition(
+				sprintf(
+					'The decorator "%s" is not callable',
+					$definition->getName()
+				)
+			);
+		}
 
-        if (! $decoratedDefinition instanceof Definition) {
-            if (! $definition->getName()) {
-                throw new InvalidDefinition('Decorators cannot be nested in another definition');
-            }
+		$decoratedDefinition = $definition->getDecoratedDefinition();
 
-            throw new InvalidDefinition(sprintf(
-                'Entry "%s" decorates nothing: no previous definition with the same name was found',
-                $definition->getName()
-            ));
-        }
+		if ( ! $decoratedDefinition instanceof Definition ) {
+			if ( ! $definition->getName() ) {
+				throw new InvalidDefinition( 'Decorators cannot be nested in another definition' );
+			}
 
-        $decorated = $this->definitionResolver->resolve($decoratedDefinition, $parameters);
+			throw new InvalidDefinition(
+				sprintf(
+					'Entry "%s" decorates nothing: no previous definition with the same name was found',
+					$definition->getName()
+				)
+			);
+		}
 
-        return call_user_func($callable, $decorated, $this->container);
-    }
+		$decorated = $this->definitionResolver->resolve( $decoratedDefinition, $parameters );
 
-    public function isResolvable(Definition $definition, array $parameters = []) : bool
-    {
-        return true;
-    }
+		return call_user_func( $callable, $decorated, $this->container );
+	}
+
+	public function isResolvable( Definition $definition, array $parameters = array() ): bool {
+		return true;
+	}
 }

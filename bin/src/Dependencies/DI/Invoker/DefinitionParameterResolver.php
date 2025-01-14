@@ -16,54 +16,53 @@ use ReflectionFunctionAbstract;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class DefinitionParameterResolver implements ParameterResolver
-{
-    /**
-     * @var DefinitionResolver
-     */
-    private $definitionResolver;
+class DefinitionParameterResolver implements ParameterResolver {
 
-    public function __construct(DefinitionResolver $definitionResolver)
-    {
-        $this->definitionResolver = $definitionResolver;
-    }
+	/**
+	 * @var DefinitionResolver
+	 */
+	private $definitionResolver;
 
-    public function getParameters(
-        ReflectionFunctionAbstract $reflection,
-        array $providedParameters,
-        array $resolvedParameters
-    ) : array {
-        // Skip parameters already resolved
-        if (! empty($resolvedParameters)) {
-            $providedParameters = array_diff_key($providedParameters, $resolvedParameters);
-        }
+	public function __construct( DefinitionResolver $definitionResolver ) {
+		$this->definitionResolver = $definitionResolver;
+	}
 
-        foreach ($providedParameters as $key => $value) {
-            if ($value instanceof DefinitionHelper) {
-                $value = $value->getDefinition('');
-            }
+	public function getParameters(
+		ReflectionFunctionAbstract $reflection,
+		array $providedParameters,
+		array $resolvedParameters
+	): array {
+		// Skip parameters already resolved
+		if ( ! empty( $resolvedParameters ) ) {
+			$providedParameters = array_diff_key( $providedParameters, $resolvedParameters );
+		}
 
-            if (! $value instanceof Definition) {
-                continue;
-            }
+		foreach ( $providedParameters as $key => $value ) {
+			if ( $value instanceof DefinitionHelper ) {
+				$value = $value->getDefinition( '' );
+			}
 
-            $value = $this->definitionResolver->resolve($value);
+			if ( ! $value instanceof Definition ) {
+				continue;
+			}
 
-            if (is_int($key)) {
-                // Indexed by position
-                $resolvedParameters[$key] = $value;
-            } else {
-                // Indexed by parameter name
-                // TODO optimize?
-                $reflectionParameters = $reflection->getParameters();
-                foreach ($reflectionParameters as $reflectionParameter) {
-                    if ($key === $reflectionParameter->name) {
-                        $resolvedParameters[$reflectionParameter->getPosition()] = $value;
-                    }
-                }
-            }
-        }
+			$value = $this->definitionResolver->resolve( $value );
 
-        return $resolvedParameters;
-    }
+			if ( is_int( $key ) ) {
+				// Indexed by position
+				$resolvedParameters[ $key ] = $value;
+			} else {
+				// Indexed by parameter name
+				// TODO optimize?
+				$reflectionParameters = $reflection->getParameters();
+				foreach ( $reflectionParameters as $reflectionParameter ) {
+					if ( $key === $reflectionParameter->name ) {
+						$resolvedParameters[ $reflectionParameter->getPosition() ] = $value;
+					}
+				}
+			}
+		}
+
+		return $resolvedParameters;
+	}
 }

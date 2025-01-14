@@ -9,61 +9,58 @@ namespace MergeInc\Sort\Dependencies\DI\Definition\Source;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class DefinitionFile extends DefinitionArray
-{
-    /**
-     * @var bool
-     */
-    private $initialized = false;
+class DefinitionFile extends DefinitionArray {
 
-    /**
-     * File containing definitions, or null if the definitions are given as a PHP array.
-     * @var string|null
-     */
-    private $file;
+	/**
+	 * @var bool
+	 */
+	private $initialized = false;
 
-    /**
-     * @param string $file File in which the definitions are returned as an array.
-     */
-    public function __construct($file, Autowiring $autowiring = null)
-    {
-        // Lazy-loading to improve performances
-        $this->file = $file;
+	/**
+	 * File containing definitions, or null if the definitions are given as a PHP array.
+	 *
+	 * @var string|null
+	 */
+	private $file;
 
-        parent::__construct([], $autowiring);
-    }
+	/**
+	 * @param string $file File in which the definitions are returned as an array.
+	 */
+	public function __construct( $file, Autowiring $autowiring = null ) {
+		// Lazy-loading to improve performances
+		$this->file = $file;
 
-    public function getDefinition(string $name)
-    {
-        $this->initialize();
+		parent::__construct( array(), $autowiring );
+	}
 
-        return parent::getDefinition($name);
-    }
+	public function getDefinition( string $name ) {
+		$this->initialize();
 
-    public function getDefinitions() : array
-    {
-        $this->initialize();
+		return parent::getDefinition( $name );
+	}
 
-        return parent::getDefinitions();
-    }
+	public function getDefinitions(): array {
+		$this->initialize();
 
-    /**
-     * Lazy-loading of the definitions.
-     */
-    private function initialize()
-    {
-        if ($this->initialized === true) {
-            return;
-        }
+		return parent::getDefinitions();
+	}
 
-        $definitions = require $this->file;
+	/**
+	 * Lazy-loading of the definitions.
+	 */
+	private function initialize() {
+		if ( $this->initialized === true ) {
+			return;
+		}
 
-        if (! is_array($definitions)) {
-            throw new \Exception("File {$this->file} should return an array of definitions");
-        }
+		$definitions = require $this->file;
 
-        $this->addDefinitions($definitions);
+		if ( ! is_array( $definitions ) ) {
+			throw new \Exception( "File {$this->file} should return an array of definitions" );
+		}
 
-        $this->initialized = true;
-    }
+		$this->addDefinitions( $definitions );
+
+		$this->initialized = true;
+	}
 }

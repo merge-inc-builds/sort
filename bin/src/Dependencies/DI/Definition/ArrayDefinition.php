@@ -10,64 +10,59 @@ namespace MergeInc\Sort\Dependencies\DI\Definition;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ArrayDefinition implements Definition
-{
-    /**
-     * Entry name.
-     * @var string
-     */
-    private $name = '';
+class ArrayDefinition implements Definition {
 
-    /**
-     * @var array
-     */
-    private $values;
+	/**
+	 * Entry name.
+	 *
+	 * @var string
+	 */
+	private $name = '';
 
-    public function __construct(array $values)
-    {
-        $this->values = $values;
-    }
+	/**
+	 * @var array
+	 */
+	private $values;
 
-    public function getName() : string
-    {
-        return $this->name;
-    }
+	public function __construct( array $values ) {
+		$this->values = $values;
+	}
 
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
+	public function getName(): string {
+		return $this->name;
+	}
 
-    public function getValues() : array
-    {
-        return $this->values;
-    }
+	public function setName( string $name ) {
+		$this->name = $name;
+	}
 
-    public function replaceNestedDefinitions(callable $replacer)
-    {
-        $this->values = array_map($replacer, $this->values);
-    }
+	public function getValues(): array {
+		return $this->values;
+	}
 
-    public function __toString()
-    {
-        $str = '[' . \PHP_EOL;
+	public function replaceNestedDefinitions( callable $replacer ) {
+		$this->values = array_map( $replacer, $this->values );
+	}
 
-        foreach ($this->values as $key => $value) {
-            if (is_string($key)) {
-                $key = "'" . $key . "'";
-            }
+	public function __toString() {
+		$str = '[' . \PHP_EOL;
 
-            $str .= '    ' . $key . ' => ';
+		foreach ( $this->values as $key => $value ) {
+			if ( is_string( $key ) ) {
+				$key = "'" . $key . "'";
+			}
 
-            if ($value instanceof Definition) {
-                $str .= str_replace(\PHP_EOL, \PHP_EOL . '    ', (string) $value);
-            } else {
-                $str .= var_export($value, true);
-            }
+			$str .= '    ' . $key . ' => ';
 
-            $str .= ',' . \PHP_EOL;
-        }
+			if ( $value instanceof Definition ) {
+				$str .= str_replace( \PHP_EOL, \PHP_EOL . '    ', (string) $value );
+			} else {
+				$str .= var_export( $value, true );
+			}
 
-        return $str . ']';
-    }
+			$str .= ',' . \PHP_EOL;
+		}
+
+		return $str . ']';
+	}
 }

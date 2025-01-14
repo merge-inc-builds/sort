@@ -14,84 +14,81 @@ use MergeInc\Sort\Dependencies\Psr\Container\NotFoundExceptionInterface;
  * @since 5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class StringDefinition implements Definition, SelfResolvingDefinition
-{
-    /**
-     * Entry name.
-     * @var string
-     */
-    private $name = '';
+class StringDefinition implements Definition, SelfResolvingDefinition {
 
-    /**
-     * @var string
-     */
-    private $expression;
+	/**
+	 * Entry name.
+	 *
+	 * @var string
+	 */
+	private $name = '';
 
-    public function __construct(string $expression)
-    {
-        $this->expression = $expression;
-    }
+	/**
+	 * @var string
+	 */
+	private $expression;
 
-    public function getName() : string
-    {
-        return $this->name;
-    }
+	public function __construct( string $expression ) {
+		$this->expression = $expression;
+	}
 
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
+	public function getName(): string {
+		return $this->name;
+	}
 
-    public function getExpression() : string
-    {
-        return $this->expression;
-    }
+	public function setName( string $name ) {
+		$this->name = $name;
+	}
 
-    public function resolve(ContainerInterface $container) : string
-    {
-        return self::resolveExpression($this->name, $this->expression, $container);
-    }
+	public function getExpression(): string {
+		return $this->expression;
+	}
 
-    public function isResolvable(ContainerInterface $container) : bool
-    {
-        return true;
-    }
+	public function resolve( ContainerInterface $container ): string {
+		return self::resolveExpression( $this->name, $this->expression, $container );
+	}
 
-    public function replaceNestedDefinitions(callable $replacer)
-    {
-        // no nested definitions
-    }
+	public function isResolvable( ContainerInterface $container ): bool {
+		return true;
+	}
 
-    public function __toString()
-    {
-        return $this->expression;
-    }
+	public function replaceNestedDefinitions( callable $replacer ) {
+		// no nested definitions
+	}
 
-    /**
-     * Resolve a string expression.
-     */
-    public static function resolveExpression(
-        string $entryName,
-        string $expression,
-        ContainerInterface $container
-    ) : string {
-        $callback = function (array $matches) use ($entryName, $container) {
-            try {
-                return $container->get($matches[1]);
-            } catch (NotFoundExceptionInterface $e) {
-                throw new DependencyException(sprintf(
-                    "Error while parsing string expression for entry '%s': %s",
-                    $entryName,
-                    $e->getMessage()
-                ), 0, $e);
-            }
-        };
+	public function __toString() {
+		return $this->expression;
+	}
 
-        $result = preg_replace_callback('#\{([^\{\}]+)\}#', $callback, $expression);
-        if ($result === null) {
-            throw new \RuntimeException(sprintf('An unknown error occurred while parsing the string definition: \'%s\'', $expression));
-        }
+	/**
+	 * Resolve a string expression.
+	 */
+	public static function resolveExpression(
+		string $entryName,
+		string $expression,
+		ContainerInterface $container
+	): string {
+		$callback = function ( array $matches ) use ( $entryName, $container ) {
+			try {
+				return $container->get( $matches[1] );
+			} catch ( NotFoundExceptionInterface $e ) {
+				throw new DependencyException(
+					sprintf(
+						"Error while parsing string expression for entry '%s': %s",
+						$entryName,
+						$e->getMessage()
+					),
+					0,
+					$e
+				);
+			}
+		};
 
-        return $result;
-    }
+		$result = preg_replace_callback( '#\{([^\{\}]+)\}#', $callback, $expression );
+		if ( $result === null ) {
+			throw new \RuntimeException( sprintf( 'An unknown error occurred while parsing the string definition: \'%s\'', $expression ) );
+		}
+
+		return $result;
+	}
 }

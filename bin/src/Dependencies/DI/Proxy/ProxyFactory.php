@@ -21,81 +21,79 @@ use ProxyManager\Proxy\LazyLoadingInterface;
  * @since  5.0
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ProxyFactory
-{
-    /**
-     * If true, write the proxies to disk to improve performances.
-     * @var bool
-     */
-    private $writeProxiesToFile;
+class ProxyFactory {
 
-    /**
-     * Directory where to write the proxies (if $writeProxiesToFile is enabled).
-     * @var string|null
-     */
-    private $proxyDirectory;
+	/**
+	 * If true, write the proxies to disk to improve performances.
+	 *
+	 * @var bool
+	 */
+	private $writeProxiesToFile;
 
-    /**
-     * @var LazyLoadingValueHolderFactory|null
-     */
-    private $proxyManager;
+	/**
+	 * Directory where to write the proxies (if $writeProxiesToFile is enabled).
+	 *
+	 * @var string|null
+	 */
+	private $proxyDirectory;
 
-    public function __construct(bool $writeProxiesToFile = false, string $proxyDirectory = null)
-    {
-        $this->writeProxiesToFile = $writeProxiesToFile;
-        $this->proxyDirectory = $proxyDirectory;
-    }
+	/**
+	 * @var LazyLoadingValueHolderFactory|null
+	 */
+	private $proxyManager;
 
-    /**
-     * Creates a new lazy proxy instance of the given class with
-     * the given initializer.
-     *
-     * @param string $className name of the class to be proxied
-     * @param \Closure $initializer initializer to be passed to the proxy
-     */
-    public function createProxy(string $className, \Closure $initializer) : LazyLoadingInterface
-    {
-        $this->createProxyManager();
+	public function __construct( bool $writeProxiesToFile = false, string $proxyDirectory = null ) {
+		$this->writeProxiesToFile = $writeProxiesToFile;
+		$this->proxyDirectory     = $proxyDirectory;
+	}
 
-        return $this->proxyManager->createProxy($className, $initializer);
-    }
+	/**
+	 * Creates a new lazy proxy instance of the given class with
+	 * the given initializer.
+	 *
+	 * @param string   $className name of the class to be proxied
+	 * @param \Closure $initializer initializer to be passed to the proxy
+	 */
+	public function createProxy( string $className, \Closure $initializer ): LazyLoadingInterface {
+		$this->createProxyManager();
 
-    /**
-     * Generates and writes the proxy class to file.
-     *
-     * @param string $className name of the class to be proxied
-     */
-    public function generateProxyClass(string $className)
-    {
-        // If proxy classes a written to file then we pre-generate the class
-        // If they are not written to file then there is no point to do this
-        if ($this->writeProxiesToFile) {
-            $this->createProxyManager();
-            $this->createProxy($className, function () {});
-        }
-    }
+		return $this->proxyManager->createProxy( $className, $initializer );
+	}
 
-    private function createProxyManager()
-    {
-        if ($this->proxyManager !== null) {
-            return;
-        }
+	/**
+	 * Generates and writes the proxy class to file.
+	 *
+	 * @param string $className name of the class to be proxied
+	 */
+	public function generateProxyClass( string $className ) {
+		// If proxy classes a written to file then we pre-generate the class
+		// If they are not written to file then there is no point to do this
+		if ( $this->writeProxiesToFile ) {
+			$this->createProxyManager();
+			$this->createProxy( $className, function () {} );
+		}
+	}
 
-        if (! class_exists(Configuration::class)) {
-            throw new \RuntimeException('The ocramius/proxy-manager library is not installed. Lazy injection requires that library to be installed with Composer in order to work. Run "composer require ocramius/proxy-manager:~2.0".');
-        }
+	private function createProxyManager() {
+		if ( $this->proxyManager !== null ) {
+			return;
+		}
 
-        $config = new Configuration();
+		if ( ! class_exists( Configuration::class ) ) {
+			throw new \RuntimeException( 'The ocramius/proxy-manager library is not installed. Lazy injection requires that library to be installed with Composer in order to work. Run "composer require ocramius/proxy-manager:~2.0".' );
+		}
 
-        if ($this->writeProxiesToFile) {
-            $config->setProxiesTargetDir($this->proxyDirectory);
-            $config->setGeneratorStrategy(new FileWriterGeneratorStrategy(new FileLocator($this->proxyDirectory)));
-            // @phpstan-ignore-next-line
-            spl_autoload_register($config->getProxyAutoloader());
-        } else {
-            $config->setGeneratorStrategy(new EvaluatingGeneratorStrategy());
-        }
+		$config = new Configuration();
 
-        $this->proxyManager = new LazyLoadingValueHolderFactory($config);
-    }
+		if ( $this->writeProxiesToFile ) {
+			$config->setProxiesTargetDir( $this->proxyDirectory );
+			$config->setGeneratorStrategy( new FileWriterGeneratorStrategy( new FileLocator( $this->proxyDirectory ) ) );
+			// @phpstan-ignore-next-line
+			spl_autoload_register( $config->getProxyAutoloader() );
+		} else {
+			$config->setGeneratorStrategy( new EvaluatingGeneratorStrategy() );
+		}
+
+		$this->proxyManager = new LazyLoadingValueHolderFactory( $config );
+	}
 }
