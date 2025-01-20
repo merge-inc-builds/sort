@@ -1,0 +1,65 @@
+#frontend-admin {
+    margin-left: 170px;
+    padding: 10px;
+}
+
+@media screen and (max-width: 960px) {
+    #frontend-admin {
+        margin-left: 50px;
+    }
+}
+
+.tooltip {
+    cursor: pointer;
+    border-bottom: 1px dotted #000;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    display: block;
+    background: #2FD3B9;
+    color: #000;
+    padding: 5px;
+    border-radius: 5px;
+    position: absolute;
+    z-index: 1000;
+}
+
+.logo {
+    width: 32px;
+    border-radius: 5px;
+    position: relative;
+    top: 8px;
+    margin-right: 3px;
+}
+
+.notice.notice-info.ms-styled {
+    border-left-color: #2FD3B9;
+    background: rgb(255, 255, 255);
+    /**
+    background: linear-gradient(360deg, rgba(255, 255, 255, 1) 0%, rgba(47, 211, 185, 0.5270483193277311) 100%);
+
+     */
+}
+
+#msAdminEmail,
+#msAdminEmail:focus,
+#msAdminEmail:active {
+    box-shadow: none !important;
+}
+
+.ms-hidden {
+    display: none;
+}
+
+
+.ms-notice-logo {
+    width: 16px;
+    position: relative;
+    top: 4px;
+}
+
+#ms-generic-message {
+    margin-bottom: -10px;
+    margin-top: -5px;
+}
