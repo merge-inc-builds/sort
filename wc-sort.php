@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Plugin Name: Sales Order Ranking Tool
  * Author URI: https://sort.joinmerge.gr
  * Description: A WooCommerce extension designed to enhance your store's product sorting and ranking capabilities. Sort products dynamically using sales data, trends, and other criteria to optimize customer experience and maximize conversions.
- * Version: 4.1.2
+ * Version: 4.1.3
  * Author: Merge Inc
  * GitHub Plugin URI: https://github.com/merge-inc-builds/sort
  * Plugin URI: https://sort.joinmerge.gr/sort
@@ -73,7 +73,7 @@ class Sort {
 	/**
 	 *
 	 */
-	public const VERSION = '4.1.2';
+	public const VERSION = '4.1.3';
 
 	/**
 	 * @var Sort|null
