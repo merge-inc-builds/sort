@@ -5,7 +5,7 @@ Tested up to: 6.7.1
 Requires PHP: 7.4
 WC requires at least: 7.3.0
 WC tested up to: 9.5.2
-Stable tag: 4.1.6
+Stable tag: 4.1.7
 License: GPLv3
 License URI: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html)
 
@@ -62,6 +62,10 @@ This plugin utilizes two external services to provide additional functionality. 
 = Retrieved messages are cached both in the browser and the website to minimize live calls and enhance performance.
 
 These integrations have been designed with care to ensure transparency and efficiency while providing valuable features for the plugin users.
+
+== Build Files Information ==
+
+= The CSS and JavaScript files located in the `frontend/admin/dist` directory are build files. These files are generated from the source files found in the `frontend/admin/source-files` directory.
 
 == Changelog ==
 
