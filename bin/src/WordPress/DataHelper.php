@@ -6,6 +6,7 @@ namespace MergeInc\Sort\WordPress;
 use WC_Order;
 use Exception;
 use WC_Product;
+use MergeInc\Sort\Sort;
 use MergeInc\Sort\Globals\Mapper;
 use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\Globals\SalesEncoder;
@@ -240,37 +241,28 @@ final class DataHelper {
 	 * @return string
 	 */
 	public function getLogoUrl( string $size = '32' ): string {
-		return "{$this->getPluginBaseUrl()}/assets/icon-{$size}x$size.png";
+		return "{$this->getAppUrl()}/assets/icon-{$size}x$size.png";
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getPluginBaseUrl(): string {
-		$siteUrl               = rtrim( get_site_url(), '/' );
-		$appFolderName         = basename( $this->getAppRoot() );
-		$pluginsFolder         = rtrim( WP_PLUGIN_DIR, DIRECTORY_SEPARATOR );
-		$relativePluginsFolder = str_replace( ABSPATH, '', $pluginsFolder );
-
-		return "$siteUrl/$relativePluginsFolder/$appFolderName";
+	public function getAppUrl(): string {
+		return plugin_dir_url( Sort::FILE );
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getAppRoot(): string {
-		if ( file_exists( __DIR__ . '/../../../wc-sort.php' ) ) {
-			$appRoot = __DIR__ . '/../../../wc-sort.php';
-		} else {
-			$appRoot = __DIR__ . '/../../wc-sort.php';
-		}
-
-		$appRoot = dirname( realpath( $appRoot ) );
-
-		return rtrim( $appRoot, DIRECTORY_SEPARATOR );
+		return plugin_dir_path( Sort::FILE );
 	}
 
 	/**
+	 * @param string $size
 	 * @return string
 	 */
-	public function getBannerUrl(): string {
-		return "{$this->getPluginBaseUrl()}/assets/banner-1544x500.jpg";
+	public function getBannerUrl( string $size = '1544x500' ): string {
+		return "{$this->getAppUrl()}/assets/banner-$size.jpg";
 	}
 }

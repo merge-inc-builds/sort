@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Plugin Name: Sales Order Ranking Tool
  * Author URI: https://sort.joinmerge.gr
  * Description: A WooCommerce extension designed to enhance your store's product sorting and ranking capabilities. Sort products dynamically using sales data, trends, and other criteria to optimize customer experience and maximize conversions.
- * Version: 4.1.7
+ * Version: 4.1.8
  * Author: Merge Inc
  * GitHub Plugin URI: https://github.com/merge-inc-builds/sort
  * Plugin URI: https://sort.joinmerge.gr/sort
@@ -37,9 +37,7 @@ use MergeInc\Sort\Globals\SalesCalculator;
 use MergeInc\Sort\WordPress\OrderRecorder;
 use MergeInc\Sort\WordPress\ProductsHelper;
 use MergeInc\Sort\Globals\EnvironmentDetector;
-use MergeInc\Sort\Dependencies\DI\NotFoundException;
 use MergeInc\Sort\Dependencies\League\Plates\Engine;
-use MergeInc\Sort\Dependencies\DI\DependencyException;
 use MergeInc\Sort\WordPress\Controller\ThankYouController;
 use MergeInc\Sort\WordPress\Controller\ControllerRegistrar;
 use MergeInc\Sort\WordPress\Controller\OrderUpdatedController;
@@ -49,9 +47,7 @@ use MergeInc\Sort\WordPress\Controller\MessageProxyController;
 use MergeInc\Sort\WordPress\Controller\MenuPageRegistrationController;
 use MergeInc\Sort\WordPress\Controller\SettingsRegistrationController;
 use MergeInc\Sort\WordPress\Controller\InjectAdminJavascriptController;
-use MergeInc\Sort\Dependencies\Psr\Container\NotFoundExceptionInterface;
 use MergeInc\Sort\WordPress\Controller\UpdateCronJobIntervalsController;
-use MergeInc\Sort\Dependencies\Psr\Container\ContainerExceptionInterface;
 use MergeInc\Sort\WordPress\Controller\DeclareHposCompatibilityController;
 use MergeInc\Sort\WordPress\Controller\SetTrendingOptionAsDefaultController;
 use MergeInc\Sort\WordPress\Controller\RunRegisterSubscriberActionController;
@@ -74,7 +70,10 @@ class Sort {
 	/**
 	 *
 	 */
-	public const VERSION = '4.1.7';
+	public const VERSION = '4.1.8';
+
+
+	public const FILE = __FILE__;
 
 	/**
 	 * @var Sort|null

@@ -49,18 +49,16 @@ final class InjectAdminJavascriptController extends AbstractController {
 		$version =
 			$this->environmentDetector->isDevelopment() ? hash( 'crc32', (string) microtime( true ) ) : Sort::VERSION;
 
-		$appRoot = $this->dataHelper->getAppRoot();
-
 		wp_enqueue_script(
 			Constants::HANDLE_ADMIN_FRONTEND,
-			rtrim( plugin_dir_url( "$appRoot/wc-sort.php" ), '/' ) . '/frontend/admin/dist/js/admin.js',
+			"{$this->dataHelper->getAppUrl()}/frontend/admin/dist/js/admin.js",
 			false,
 			$version
 		);
 
 		wp_enqueue_style(
 			Constants::HANDLE_ADMIN_FRONTEND,
-			rtrim( plugin_dir_url( "$appRoot/wc-sort.php" ), '/' ) . '/frontend/admin/dist/css/admin.css',
+			"{$this->dataHelper->getAppUrl()}/frontend/admin/dist/css/admin.css",
 			false,
 			$version
 		);

@@ -30,12 +30,12 @@ final class Constants {
 	/**
 	 *
 	 */
-	public const META_KEY_ORDER_RECORDED = '_ms_recorded';
+	public const META_KEY_ORDER_RECORDED = '_wc-sort_recorded';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_SALES = '_ms_sales';
+	public const META_KEY_PRODUCT_SALES = '_wc-sort_sales';
 
 	/**
 	 *
@@ -45,155 +45,155 @@ final class Constants {
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_WEEKLY_SALES = '_ms_weekly_sales';
+	public const META_KEY_PRODUCT_WEEKLY_SALES = '_wc-sort_weekly_sales';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_BIWEEKLY_SALES = '_ms_biweekly_sales';
+	public const META_KEY_PRODUCT_BIWEEKLY_SALES = '_wc-sort_biweekly_sales';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_MONTHLY_SALES = '_ms_monthly_sales';
+	public const META_KEY_PRODUCT_MONTHLY_SALES = '_wc-sort_monthly_sales';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_QUARTERLY_SALES = '_ms_quarterly_sales';
+	public const META_KEY_PRODUCT_QUARTERLY_SALES = '_wc-sort_quarterly_sales';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_HALF_YEARLY_SALES = '_ms_half_yearly_sales';
+	public const META_KEY_PRODUCT_HALF_YEARLY_SALES = '_wc-sort_half_yearly_sales';
 
 	/**
 	 *
 	 */
-	public const META_KEY_PRODUCT_YEARLY_SALES = '_ms_yearly_sales';
+	public const META_KEY_PRODUCT_YEARLY_SALES = '_wc-sort_yearly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_DAILY_SALES = 'ms_daily_sales';
+	public const COLUMN_DAILY_SALES = 'wc-sort_daily_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_WEEKLY_SALES = 'ms_weekly_sales';
+	public const COLUMN_WEEKLY_SALES = 'wc-sort_weekly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_BIWEEKLY_SALES = 'ms_biweekly_sales';
+	public const COLUMN_BIWEEKLY_SALES = 'wc-sort_biweekly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_MONTHLY_SALES = 'ms_monthly_sales';
+	public const COLUMN_MONTHLY_SALES = 'wc-sort_monthly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_QUARTERLY_SALES = 'ms_quarterly_sales';
+	public const COLUMN_QUARTERLY_SALES = 'wc-sort_quarterly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_HALF_YEARLY_SALES = 'ms_half_yearly_sales';
+	public const COLUMN_HALF_YEARLY_SALES = 'wc-sort_half_yearly_sales';
 
 	/**
 	 *
 	 */
-	public const COLUMN_YEARLY_SALES = 'ms_yearly_sales';
+	public const COLUMN_YEARLY_SALES = 'wc-sort_yearly_sales';
 
 	/**
 	 *
 	 */
-	public const ACTION_CREATE_PRODUCTS_META_KEYS = 'ms_create_products_meta_keys';
+	public const ACTION_CREATE_PRODUCTS_META_KEYS = 'wc_sort_create_products_meta_keys';
 
 	/**
 	 *
 	 */
-	public const ACTION_REGISTER_SUBSCRIBER = 'ms_register_subscriber';
+	public const ACTION_REGISTER_SUBSCRIBER = 'wc_sort_register_subscriber';
 
 	/**
 	 *
 	 */
-	public const FILTER_ADMIN_DATA = 'ms_admin_data';
+	public const FILTER_ADMIN_DATA = 'wc-sort_admin_data';
 
 	/**
 	 *
 	 */
-	public const ADMIN_MENU_PAGE_SLUG = 'ms-settings-page';
+	public const ADMIN_MENU_PAGE_SLUG = 'wc-sort-settings-page';
 
 	/**
 	 *
 	 */
-	public const ADMIN_MENU_OPTION_GROUP = 'ms-settings-option-group';
+	public const ADMIN_MENU_OPTION_GROUP = 'wc-sort-settings-option-group';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_SECTION_ACTIVATION = 'ms-settings-section-activation';
+	public const SETTINGS_SECTION_ACTIVATION = 'wc-sort-settings-section-activation';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_SECTION_BASIC = 'ms-settings-section-basic';
+	public const SETTINGS_SECTION_BASIC = 'wc-sort-settings-section-basic';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_SECTION_FREEMIUM = 'ms-settings-section-freemium';
+	public const SETTINGS_SECTION_FREEMIUM = 'wc-sort-settings-section-freemium';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELDS_ACTIVATED = 'ms-settings-field-activated';
+	public const SETTINGS_FIELDS_ACTIVATED = 'wc-sort-settings-field-activated';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELDS_FREEMIUM_ACTIVATED = 'ms-settings-field-freemium-activated';
+	public const SETTINGS_FIELDS_FREEMIUM_ACTIVATED = 'wc-sort-settings-field-freemium-activated';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELDS_DEFAULT = 'ms-settings-field-default';
+	public const SETTINGS_FIELDS_DEFAULT = 'wc-sort-settings-field-default';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELD_TRENDING_LABEL = 'ms-settings-field-trending-label';
+	public const SETTINGS_FIELD_TRENDING_LABEL = 'wc-sort-settings-field-trending-label';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELD_TRENDING_INTERVAL = 'ms-settings-field-trending-interval';
+	public const SETTINGS_FIELD_TRENDING_INTERVAL = 'wc-sort-settings-field-trending-interval';
 
 	/**
 	 *
 	 */
-	public const SETTINGS_FIELD_TRENDING_OPTION_NAME_URL = 'ms-settings-field-trending-option-name';
+	public const SETTINGS_FIELD_TRENDING_OPTION_NAME_URL = 'wc-sort-settings-field-trending-option-name';
 
 	/**
 	 *
 	 */
-	public const OPTION_NAME_LAST_PROCESSED_PAGE = 'ms-last-processed-page';
+	public const OPTION_NAME_LAST_PROCESSED_PAGE = 'wc-sort-last-processed-page';
 
 
-	public const OPTION_NAME_META_KEYS_ONE_ROUND_COMPLETED = 'ms-meta-keys-once-round-completed';
-
-	/**
-	 *
-	 */
-	public const HANDLE_ADMIN_FRONTEND = 'ms-admin-frontend';
+	public const OPTION_NAME_META_KEYS_ONE_ROUND_COMPLETED = 'wc-sort-meta-keys-once-round-completed';
 
 	/**
 	 *
 	 */
-	public const HANDLE_ADMIN_FRONTEND_DATA = 'ms_data';
+	public const HANDLE_ADMIN_FRONTEND = 'wc-sort-admin-frontend';
+
+	/**
+	 *
+	 */
+	public const HANDLE_ADMIN_FRONTEND_DATA = 'wc_sort_data';
 
 	/**
 	 *
@@ -208,7 +208,7 @@ final class Constants {
 	/**
 	 *
 	 */
-	public const WP_JSON_API_BASE_URL = 'sort/v1';
+	public const WP_JSON_API_BASE_URL = 'wc-sort/v1';
 
 	/**
 	 *
