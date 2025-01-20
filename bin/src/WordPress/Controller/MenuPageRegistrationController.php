@@ -7,6 +7,10 @@ use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Dependencies\League\Plates\Engine;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class MenuPageRegistrationController
  *

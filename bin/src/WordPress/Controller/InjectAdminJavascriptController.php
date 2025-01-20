@@ -8,6 +8,10 @@ use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Globals\EnvironmentDetector;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class InjectAdminJavascriptController
  *
@@ -49,14 +53,14 @@ final class InjectAdminJavascriptController extends AbstractController {
 
 		wp_enqueue_script(
 			Constants::HANDLE_ADMIN_FRONTEND,
-			rtrim( plugin_dir_url( "$appRoot/merge-inc-sort.php" ), '/' ) . '/frontend/admin/dist/js/admin.js',
+			rtrim( plugin_dir_url( "$appRoot/wc-sort.php" ), '/' ) . '/frontend/admin/dist/js/admin.js',
 			false,
 			$version
 		);
 
 		wp_enqueue_style(
 			Constants::HANDLE_ADMIN_FRONTEND,
-			rtrim( plugin_dir_url( "$appRoot/merge-inc-sort.php" ), '/' ) . '/frontend/admin/dist/css/admin.css',
+			rtrim( plugin_dir_url( "$appRoot/wc-sort.php" ), '/' ) . '/frontend/admin/dist/css/admin.css',
 			false,
 			$version
 		);

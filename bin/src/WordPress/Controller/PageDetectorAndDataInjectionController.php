@@ -7,6 +7,10 @@ use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Globals\EnvironmentDetector;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class PageDetectorAndDataInjectionController
  *

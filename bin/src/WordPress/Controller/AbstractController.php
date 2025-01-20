@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace MergeInc\Sort\WordPress\Controller;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class AbstractController
  *

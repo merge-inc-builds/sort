@@ -5,6 +5,10 @@ namespace MergeInc\Sort\WordPress\Controller;
 
 use MergeInc\Sort\Globals\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class UpdateCronJobIntervalsController
  *

@@ -7,7 +7,7 @@
 - **Requires PHP**: 7.4
 - **WC requires at least**: 7.3.0
 - **WC tested up to**: 9.5.2
-- **Stable tag**: 4.1.1
+- **Stable tag**: 4.1.2
 - **License**: GPLv3
 - **License URI**: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html)
 
@@ -56,6 +56,3 @@ Yes, the plugin retains relevant sales data for the past year and removes outdat
 ---
 
 ## == Changelog ==
-
-= 4.1.1 - 2025-01-14 =
-* Added: New cron interval at 15 minutes.

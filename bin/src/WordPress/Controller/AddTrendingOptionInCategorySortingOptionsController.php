@@ -5,6 +5,10 @@ namespace MergeInc\Sort\WordPress\Controller;
 
 use MergeInc\Sort\WordPress\DataHelper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class AddTrendingOptionInCategorySortingOptionsController
  *

@@ -6,9 +6,11 @@ namespace MergeInc\Sort\WordPress\Controller;
 use Exception;
 use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\DataHelper;
-use MergeInc\Sort\Dependencies\GuzzleHttp\Client;
-use MergeInc\Sort\Dependencies\GuzzleHttp\Exception\GuzzleException;
-use MergeInc\Sort\Dependencies\GuzzleHttp\Exception\ClientException;
+use MergeInc\Sort\WordPress\HttpClient;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Class RunRegisterSubscriberActionController
@@ -25,17 +27,23 @@ final class RunRegisterSubscriberActionController extends AbstractController {
 	private DataHelper $dataHelper;
 
 	/**
-	 * @param DataHelper $dataHelper
+	 * @var HttpClient
 	 */
-	public function __construct( DataHelper $dataHelper ) {
+	private HttpClient $httpClient;
+
+	/**
+	 * @param DataHelper $dataHelper
+	 * @param HttpClient $httpClient
+	 */
+	public function __construct( DataHelper $dataHelper, HttpClient $httpClient ) {
 		$this->dataHelper = $dataHelper;
+		$this->httpClient = $httpClient;
 	}
 
 	/**
 	 * @return void
 	 */
 	public function __invoke(): void {
-		$guzzle     = new Client();
 		$adminEmail = $this->getAdminEmail();
 		if ( $this->dataHelper->isFreemiumActivated() ) {
 			[
@@ -43,32 +51,32 @@ final class RunRegisterSubscriberActionController extends AbstractController {
 				$surname,
 			] = $this->getAdminName();
 			try {
-				$guzzle->post(
+				$this->httpClient->post(
 					Constants::EXTERNAL_URL_SORT_INSTALLATION,
-					array(
-						'json' => array(
+					json_encode(
+						array(
 							'siteUrl'     => get_site_url(),
 							'email'       => $adminEmail,
 							'name'        => $name,
 							'surname'     => $surname,
 							'pluginName'  => 'sort',
 							'countryCode' => $this->getCountryCode(),
-						),
+						)
 					)
 				);
-			} catch ( Exception | GuzzleException | ClientException $exception ) {
+			} catch ( Exception $exception ) {
 			}
 		} else {
 			try {
-				$guzzle->delete(
+				$this->httpClient->delete(
 					Constants::EXTERNAL_URL_SORT_INSTALLATION,
-					array(
-						'json' => array(
+					json_encode(
+						array(
 							'email' => $adminEmail,
-						),
-					)
+						)
+					),
 				);
-			} catch ( Exception | GuzzleException | ClientException $exception ) {
+			} catch ( Exception $exception ) {
 			}
 		}
 	}

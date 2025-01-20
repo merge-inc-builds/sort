@@ -4,7 +4,12 @@ declare(strict_types=1);
 namespace MergeInc\Sort\WordPress\Controller;
 
 use MergeInc\Sort\Globals\Constants;
+use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Dependencies\League\Plates\Engine;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Class ControllerRegistrar
@@ -21,10 +26,17 @@ final class AdminNoticesController extends AbstractController {
 	private Engine $engine;
 
 	/**
-	 * @param Engine $engine
+	 * @var DataHelper
 	 */
-	public function __construct( Engine $engine ) {
-		$this->engine = $engine;
+	private DataHelper $dataHelper;
+
+	/**
+	 * @param Engine     $engine
+	 * @param DataHelper $dataHelper
+	 */
+	public function __construct( Engine $engine, DataHelper $dataHelper ) {
+		$this->engine     = $engine;
+		$this->dataHelper = $dataHelper;
 	}
 
 	/**
@@ -35,7 +47,7 @@ final class AdminNoticesController extends AbstractController {
 			return;
 		}
 
-		echo $this->engine->render( 'generic-message-notice' );
+		echo $this->engine->render( 'generic-message-notice', array( 'logoUrl' => $this->dataHelper->getLogoUrl( '16' ) ) );
 
 		// echo $this->engine->render("subscribe-notice", [
 		// "message" => __("Unlock exclusive updates, special offers, and insider tips—subscribe now and never miss out!",

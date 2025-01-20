@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace MergeInc\Sort\WordPress\Controller;
 
+use Exception;
+use MergeInc\Sort\Sort;
 use InvalidArgumentException;
-use MergeInc\Sort\Dependencies\Psr\Container\ContainerInterface;
-use MergeInc\Sort\Dependencies\Psr\Container\NotFoundExceptionInterface;
-use MergeInc\Sort\Dependencies\Psr\Container\ContainerExceptionInterface;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Class ControllerRegistrar
@@ -18,32 +21,18 @@ use MergeInc\Sort\Dependencies\Psr\Container\ContainerExceptionInterface;
 final class ControllerRegistrar {
 
 	/**
-	 * @var ContainerInterface
-	 */
-	private ContainerInterface $container;
-
-	/**
-	 * @param ContainerInterface $container
-	 * @return void
-	 */
-	public function __construct( ContainerInterface $container ) {
-		$this->container = $container;
-	}
-
-	/**
 	 * @param string $hookName
 	 * @param string $controller
 	 * @param int    $priority
 	 * @param int    $acceptedArguments
 	 * @return void
-	 * @throws ContainerExceptionInterface
-	 * @throws NotFoundExceptionInterface
+	 * @throws Exception
 	 */
 	public function register( string $hookName, string $controller, int $priority = 10, int $acceptedArguments = 1 ): void {
 		if ( ! is_subclass_of( $controller, AbstractController::class ) ) {
 			throw new InvalidArgumentException( "The controller must extend AbstractController. Given: $controller" );
 		}
 
-		add_filter( $hookName, $this->container->get( $controller ), $priority, $acceptedArguments );
+		add_filter( $hookName, Sort::construct()->getFromContainer( $controller ), $priority, $acceptedArguments );
 	}
 }

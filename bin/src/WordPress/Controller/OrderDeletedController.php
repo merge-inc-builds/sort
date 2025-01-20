@@ -7,6 +7,10 @@ use Exception;
 use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\WordPress\OrderRecorder;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class OrderDeletedController
  *

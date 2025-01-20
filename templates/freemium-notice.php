@@ -1,3 +1,8 @@
+<?php
+if(!defined("ABSPATH")) {
+	exit;
+}
+?>
 </td></tr>
 <tr>
     <!-- TODO: Translatable -->

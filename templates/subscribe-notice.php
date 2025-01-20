@@ -1,5 +1,7 @@
 <?php
-
+if(!defined("ABSPATH")) {
+	exit;
+}
 /**
  * @var string $adminEmail
  */
@@ -24,11 +26,3 @@
     </div>
     </p>
 </div>
-
-<style>
-    #msAdminEmail,
-    #msAdminEmail:focus,
-    #msAdminEmail:active {
-        box-shadow: none !important;
-    }
-</style>

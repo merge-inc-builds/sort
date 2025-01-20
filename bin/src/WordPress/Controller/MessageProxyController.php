@@ -6,8 +6,11 @@ namespace MergeInc\Sort\WordPress\Controller;
 use Exception;
 use WP_REST_Response;
 use MergeInc\Sort\Globals\Constants;
-use MergeInc\Sort\Dependencies\GuzzleHttp\Client;
-use MergeInc\Sort\Dependencies\GuzzleHttp\Exception\GuzzleException;
+use MergeInc\Sort\WordPress\HttpClient;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Class MessageProxyController
@@ -19,6 +22,18 @@ use MergeInc\Sort\Dependencies\GuzzleHttp\Exception\GuzzleException;
 final class MessageProxyController extends AbstractController {
 
 	/**
+	 * @var HttpClient
+	 */
+	private HttpClient $httpClient;
+
+	/**
+	 * @param HttpClient $httpClient
+	 */
+	public function __construct( HttpClient $httpClient ) {
+		$this->httpClient = $httpClient;
+	}
+
+	/**
 	 * @return void
 	 */
 	public function __invoke(): void {
@@ -28,12 +43,14 @@ final class MessageProxyController extends AbstractController {
 			array(
 				'methods'             => 'GET',
 				'callback'            => function (): WP_REST_Response {
-					$guzzle = new Client();
 					$status = 200;
 					try {
-						$response = $guzzle->get( Constants::EXTERNAL_URL_SORT_MESSAGE );
-						$data     = json_decode( $response->getBody()->getContents(), true );
-					} catch ( Exception | GuzzleException $exception ) {
+						$response = $this->httpClient->get( Constants::EXTERNAL_URL_SORT_MESSAGE );
+						$data     = json_decode( $response['response'], true );
+						if ( ! $data ) {
+							throw new Exception( 'Invalid response' );
+						}
+					} catch ( Exception $exception ) {
 						$status = 500;
 						$data   = array(
 							'error'   => true,

@@ -236,10 +236,11 @@ final class DataHelper {
 	}
 
 	/**
+	 * @param string $size
 	 * @return string
 	 */
-	public function getLogoUrl(): string {
-		return "{$this->getPluginBaseUrl()}/assets/icon-256x256.png";
+	public function getLogoUrl( string $size = '32' ): string {
+		return "{$this->getPluginBaseUrl()}/assets/icon-{$size}x$size.png";
 	}
 
 	/**
@@ -255,10 +256,10 @@ final class DataHelper {
 	}
 
 	public function getAppRoot(): string {
-		if ( file_exists( __DIR__ . '/../../../merge-inc-sort.php' ) ) {
-			$appRoot = __DIR__ . '/../../../merge-inc-sort.php';
+		if ( file_exists( __DIR__ . '/../../../wc-sort.php' ) ) {
+			$appRoot = __DIR__ . '/../../../wc-sort.php';
 		} else {
-			$appRoot = __DIR__ . '/../../merge-inc-sort.php';
+			$appRoot = __DIR__ . '/../../wc-sort.php';
 		}
 
 		$appRoot = dirname( realpath( $appRoot ) );

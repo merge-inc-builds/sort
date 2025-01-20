@@ -5,7 +5,7 @@ Tested up to: 6.7.1
 Requires PHP: 7.4
 WC requires at least: 7.3.0
 WC tested up to: 9.5.2
-Stable tag: 4.1.1
+Stable tag: 4.1.2
 License: GPLv3
 License URI: [http://www.gnu.org/licenses/gpl-3.0.html](http://www.gnu.org/licenses/gpl-3.0.html)
 
@@ -39,10 +39,31 @@ Yes, you can rename and configure the sorting options to suit your store's requi
 = Is old sales data automatically removed? =
 Yes, the plugin retains relevant sales data for the past year and removes outdated records to ensure efficiency.
 
+== External Services ==
+
+This plugin utilizes two external services to provide additional functionality. Details of these services are outlined below:
+
+1. Freemium Feature Updates
+
+= When freemium features are activated, the plugin communicates with an external URL defined in `Constants::EXTERNAL_URL_SORT_INSTALLATION`. This allows the plugin to update information about the site where it is installed, including the admin's information and the site's URL.
+
+= The collection and usage of this data are clearly disclosed in the plugin panel under the freemium features section.
+
+= If the freemium features are deactivated, the plugin automatically removes any previously submitted data.
+
+= To ensure optimal performance, this check is performed only once per day.
+
+2. Admin Notice Messages
+
+= The plugin connects to an external URL defined in `Constants::EXTERNAL_URL_SORT_MESSAGE` to retrieve messages displayed in admin notices when a dashboard page is accessed.
+
+= These messages are specific to the plugin's development company, "Merge, Inc," and provide relevant updates or information.
+
+= Retrieved messages are cached both in the browser and the website to minimize live calls and enhance performance.
+
+These integrations have been designed with care to ensure transparency and efficiency while providing valuable features for the plugin users.
+
 == Changelog ==
 
 = 3.5.0 - 2025-01-13 =
 * Added: Initial Release
-
-= 4.1.1 - 2025-01-14 =
-* Added: New cron interval at 15 minutes.

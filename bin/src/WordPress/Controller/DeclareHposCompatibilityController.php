@@ -6,6 +6,10 @@ namespace MergeInc\Sort\WordPress\Controller;
 use MergeInc\Sort\WordPress\DataHelper;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class ControllerRegistrar
  *
@@ -32,7 +36,7 @@ final class DeclareHposCompatibilityController extends AbstractController {
 	 */
 	public function __invoke(): void {
 		if ( class_exists( FeaturesUtil::class ) ) {
-			FeaturesUtil::declare_compatibility( 'custom_order_tables', "{$this->dataHelper->getAppRoot()}/merge-inc-sort.php" );
+			FeaturesUtil::declare_compatibility( 'custom_order_tables', "{$this->dataHelper->getAppRoot()}/wc-sort.php" );
 		}
 	}
 }

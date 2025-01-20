@@ -10,6 +10,10 @@ use MergeInc\Sort\Globals\Mapper;
 use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\Globals\SalesCalculator;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class ProductsHelper
  *

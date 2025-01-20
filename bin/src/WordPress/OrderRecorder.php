@@ -8,6 +8,10 @@ use DateTime;
 use Exception;
 use MergeInc\Sort\Globals\SalesCalculator;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class OrderRecorder
  *

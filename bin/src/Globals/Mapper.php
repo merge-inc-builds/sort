@@ -5,6 +5,10 @@ namespace MergeInc\Sort\Globals;
 
 use Exception;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Mapper
  *

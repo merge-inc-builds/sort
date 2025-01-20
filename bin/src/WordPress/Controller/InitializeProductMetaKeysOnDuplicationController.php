@@ -8,6 +8,10 @@ use WC_Product;
 use MergeInc\Sort\Globals\Mapper;
 use MergeInc\Sort\WordPress\DataHelper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class InitializeProductMetaKeysOnDuplicationController
  *

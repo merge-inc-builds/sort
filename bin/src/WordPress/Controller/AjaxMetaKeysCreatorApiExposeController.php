@@ -8,6 +8,10 @@ use MergeInc\Sort\Sort;
 use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\ProductsHelper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class AjaxMetaKeysCreatorApiExposeController
  *

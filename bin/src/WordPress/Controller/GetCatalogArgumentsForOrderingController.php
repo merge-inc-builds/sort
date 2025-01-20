@@ -6,6 +6,10 @@ namespace MergeInc\Sort\WordPress\Controller;
 use Exception;
 use MergeInc\Sort\WordPress\DataHelper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class GetCatalogArgumentsForOrderingController
  *

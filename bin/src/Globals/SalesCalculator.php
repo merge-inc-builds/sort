@@ -5,6 +5,10 @@ namespace MergeInc\Sort\Globals;
 
 use DateTime;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class SalesCalculator
  *

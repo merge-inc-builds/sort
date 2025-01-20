@@ -9,6 +9,10 @@ use MergeInc\Sort\Globals\Constants;
 use MergeInc\Sort\WordPress\DataHelper;
 use MergeInc\Sort\Dependencies\League\Plates\Engine;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class SettingsRegistrationController
  *
@@ -51,12 +55,66 @@ final class SettingsRegistrationController extends AbstractController {
 	 * @throws Exception
 	 */
 	public function __invoke(): void {
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELDS_ACTIVATED );
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELDS_FREEMIUM_ACTIVATED );
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELDS_DEFAULT );
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELD_TRENDING_LABEL );
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELD_TRENDING_INTERVAL );
-		register_setting( Constants::ADMIN_MENU_OPTION_GROUP, Constants::SETTINGS_FIELD_TRENDING_OPTION_NAME_URL );
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELDS_ACTIVATED,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array(
+					$this,
+					'sanitizeCheckbox',
+				),
+			)
+		);
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELDS_FREEMIUM_ACTIVATED,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array(
+					$this,
+					'sanitizeCheckbox',
+				),
+			)
+		);
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELDS_DEFAULT,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array(
+					$this,
+					'sanitizeCheckbox',
+				),
+			)
+		);
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELD_TRENDING_LABEL,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELD_TRENDING_INTERVAL,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array(
+					$this,
+					'sanitizeIntervals',
+				),
+			)
+		);
+		register_setting(
+			Constants::ADMIN_MENU_OPTION_GROUP,
+			Constants::SETTINGS_FIELD_TRENDING_OPTION_NAME_URL,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
 
 		add_settings_section(
 			Constants::SETTINGS_SECTION_ACTIVATION,
@@ -217,5 +275,28 @@ final class SettingsRegistrationController extends AbstractController {
 			Constants::ADMIN_MENU_PAGE_SLUG,
 			Constants::SETTINGS_SECTION_FREEMIUM,
 		);
+	}
+
+	/**
+	 * @param string|null $input
+	 * @return false|string|null
+	 */
+	public function sanitizeCheckbox( ?string $input ) {
+		return in_array(
+			$input,
+			array(
+				'yes',
+				'',
+				null,
+			)
+		) ? $input : false;
+	}
+
+	/**
+	 * @param string $interval
+	 * @return false|string
+	 */
+	public function sanitizeIntervals( string $interval ) {
+		return in_array( $interval, $this->mapper->getIntervals() ) ? $interval : false;
 	}
 }

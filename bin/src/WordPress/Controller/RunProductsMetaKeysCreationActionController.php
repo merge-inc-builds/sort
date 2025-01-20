@@ -6,6 +6,10 @@ namespace MergeInc\Sort\WordPress\Controller;
 use Exception;
 use MergeInc\Sort\WordPress\ProductsHelper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class RunProductsMetaKeysCreationActionController
  *
